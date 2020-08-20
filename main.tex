@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{State description language and path-RL}
+\author{}
+\date{August 2020}
+
+\begin{document}
+
+\maketitle
+
+\section{Path-RL pre-training}
+
+The two-agent game: master agent learns to produce a description of the task in some restricted inter-agent language, slave agent receives the task description and learns to execute the task. Both agents receive reward if slave successfully executes the task. The tasks are defined as states that should be reached from the some other states. The master agent takes desired state as its input and produces its description. The slave agent takes description from the master agent and current state and produces the next action. The two-agent game is somewhat similar to the cooperative game proposed in "Learning to communicate".
+
+The master agent does not know current state of the slave agent during encoding, hence, it can't encode a set of instructions for the slave agent it is forced to produce some declarative description of the desired state.
+
+The inter-agent language can be similar to the query language where the desired state is described as the set of predicates. In contrast to the exact algorithm of actions, the set of predicates is the declarative form of instructions.
+
+Instead of directly using environment states their encoded representations produces by world model are used. I. e. representation is the world state encoded by the world model pre-trained on the next state prediction task like in "World models".
+
+During the training time an agent performs exploration of the environment using some exploration policy. Random trajectories of the exploration are then used to define the training tasks, hence, only pairs of states where one state is attainable from the other are used for training.
+
+The possible training scheme is to reward agents for moving in the direction of the target state. In this case the function that estimates distance between states is required. One of the option is to use image similarity function e. g. structural similarity index (SSIM). The other option is to train a model to estimate the mean number of actions between states.
+
+The possible extension of this model is the addition of goal definition agent which replaces master agent after training. The goal definition agent receives only the current state and produces the set of predicates that could lead to the high reward. I. e. the goal agent learns to generate the set of predicates that describe high-reward states. World model states and reward predictions can be used for its training, e. g. goal definition agent reward can be defined as the mean reward of the mean state rewards for the states that are selected by the produced query (i. e. the expected reward of executing the query by a slave agent).
+
+The proposed scheme is effective for the environment with sparse rewards: there is no need to use sparse reward signals to learn basic navigation in the environment. Effective navigation skills can be learned on the without environmental reward using synthetic navigation task.
+
+The proposed 2-step learning scheme is especially effective in the scenario of multi-task learning in the same environment. The slave agent model, trained for the specific environment, can be effectively reused across different tasks.
+
+\section{Hierarchical RL}
+
+\textbf{Feudal RL}: Feudal Reinforcement Learning / Dayan \& Hinton / NIPS 1993
+
+The task is to find a way in the maze. A hierarchy of policies is defined. A policy use blocks of space as atomic movement positions. Each level of hierarchy use exponentially larger blocks comparing to the previos level. A policy selects a desired block to move to as its action and then assigns a task to lower-level policy. Higher-level policy defines reward for the lower-level policy. The reward for lower-level policy is gained if it successfully guides the agent to the block, defined by the higher-level policy.
+
+\textbf{STRAW}: Strategic Attentive Writer for Learning Macro-Actions / Vezhnevets et al. / NIPS 2016
+
+The network holds two structures in memory: action plan A and commitment plan c. T-th column of A contains probabilities to perform specific action at time t. c is a vector of probabilities to update the current plan at time t. If $g \sim c_{t-1} = 1$ then the network performs plan update. Both A and c are refreshed during update. The network is trained using A3C.
+
+\textbf{Hierarchical Deep Reinforcement Learning}: Hierarchical Deep Reinforcement Learning: Integrating Temporal Abstraction and Intrinsic Motivation / Kulkarni et al. / NIPS 2016
+
+The meta-controller learns an approximation of the optimal goal policy $\pi(g|s)$, i. e. it receives state s and select a goal g from the set of all possible current goals G. The meta-controller operates on the slower time-scale than the controller. The meta-controller receives extrinsic reward from the environment.
+
+The controller learns an approximation of the optimal action policy $\pi(a|g,s)$, i. e. it receives state s and goal g and selects an action a. The internal critic provides intrinsic reward for the controller. For example, a critic for a game can check that specific conditions are fulfilled, e. g. an agent reaches the door.
+
+The critic and the set of possible goals G are not learned but are considered available.
+
+\textbf{HIRO}: Data-Efficient Hierarchical Reinforcement Learning / Nachum et al. / NIPS 2018
+
+Ant Gather / Ant Maze / Ant Push / Ant Fall tasks are used. The higher-level policy instructs the lower-level policy via high-level actions, or goals, which it samples anew every c steps. A higher-level policy takes current state and outputs the goal for lower-level policy. The lower-level policy interacts directly with the environment. The goal simply instructs the lower-level policy to reach the specific state. The reward for lower-level policy is provided if the environment yields an observation close to matching the desired goal.
+
+
+\end{document}
