@@ -2,11 +2,12 @@
 \usepackage[utf8]{inputenc}
 
 \usepackage[square,authoryear]{natbib}
-\usepackage{hyperref}
+%\usepackage{hyperref}
+\usepackage[a4paper, margin=0.1\paperwidth]{geometry}
 
-\title{State description language and path-RL}
+\title{State description language and Path-RL}
 \author{}
-\date{August 2020}
+\date{}
 
 \begin{document}
 
@@ -14,25 +15,27 @@
 
 \section{Path-RL pre-training}
 
-The two-agent game: master agent learns to produce a description of the task in some restricted inter-agent language, slave agent receives the task description and learns to execute the task. Both agents receive reward if slave successfully executes the task. The tasks are defined as states that should be reached from the some other states. The master agent takes desired state as its input and produces its description. The slave agent takes description from the master agent and current state and produces the next action. The two-agent game is somewhat similar to the cooperative game proposed in~\cite{Mordatch2018EmergenceOG}.
+The first phase of training can be described as the two-agent game: master agent learns to produce a description of the task in some restricted inter-agent language, slave agent receives the task description and learns to execute the task. Both agents receive reward if slave successfully executes the task. The tasks are defined as states that should be reached from some other states. The master agent takes desired state as its input and produces its description. The slave agent takes description from the master agent and current state and produces the next action. The two-agent game is somewhat similar to the cooperative game proposed in~\cite{Mordatch2018EmergenceOG}.
+
+Generally, the task is a pair of queries which define the set of initial states and the set of states to reach. In current work we consider only the singleton sets of states, hence, the task is defined as a pair of states.
 
 The master agent does not know current state of the slave agent during encoding, hence, it can't encode a set of instructions for the slave agent it is forced to produce some declarative description of the desired state.
 
 The inter-agent language can be similar to the query language where the desired state is described as the set of predicates. In contrast to the exact algorithm of actions, the set of predicates is the declarative form of instructions.
 
-Instead of directly using environment states their encoded representations produced by world model are used. I. e. representation is the world state encoded by the world model pre-trained on the next state prediction task like in~\cite{Ha2018RecurrentWM}.
+During the training time an agent performs exploration of the environment using some exploration policy. Random trajectories of the exploration are then used to define the training tasks, hence, only pairs of states where one state is attainable from the other are used for training. Other alternatives for the exploration policy can be used in order to better explore the environment and collect diverse trajectories. One of the options is to use curiosity-based exploration policy (\cite{Pathak2017CuriosityDrivenEB}, \cite{Burda2019ExplorationBR}).
 
-During the training time an agent performs exploration of the environment using some exploration policy. Random trajectories of the exploration are then used to define the training tasks, hence, only pairs of states where one state is attainable from the other are used for training.
+The possible training scheme is to reward agents for moving in the direction of the target state $u'$ from the current state $u$. Positive reward can be provided for the diminishing difference between $u$ and $u'$. This removes the requirement to reach the exact target state which is not always possible in changing environments. In this case the function that estimates distance between states is required. One of the option is to use image similarity function e. g. structural similarity index (SSIM,~\cite{Wang2004ImageQA}). The other option is to train a model to estimate the mean number of actions between states.
 
-The possible training scheme is to reward agents for moving in the direction of the target state. In this case the function that estimates distance between states is required. One of the option is to use image similarity function e. g. structural similarity index (SSIM,~\cite{Wang2004ImageQA}). The other option is to train a model to estimate the mean number of actions between states.
+The second phase of training of this model is the addition of goal definition agent which replaces master agent after training. The goal definition agent receives only the current state and produces the set of predicates that could lead to the high reward. I. e. the goal agent learns to generate the set of predicates that describe high-reward states. Slave agent weights should be frozen during the second phase of training to force goal agent to use the same "language" of instructions as master agent. World model states and reward predictions can be used for the goal agent training, e. g. goal definition agent reward can be defined as the mean reward of the mean state rewards for the states that are selected by the produced query (i. e. the expected reward of executing the query by a slave agent).
 
-The possible extension of this model is the addition of goal definition agent which replaces master agent after training. The goal definition agent receives only the current state and produces the set of predicates that could lead to the high reward. I. e. the goal agent learns to generate the set of predicates that describe high-reward states. World model states and reward predictions can be used for its training, e. g. goal definition agent reward can be defined as the mean reward of the mean state rewards for the states that are selected by the produced query (i. e. the expected reward of executing the query by a slave agent).
+One of the options is to use encoded representations of the environment states instead of directly using environment states for master agent and goal definition agent. I. e. representation is the world state encoded by the world model pre-trained on the next state prediction task like in~\cite{Ha2018RecurrentWM}.
 
 The proposed scheme is effective for the environment with sparse rewards: there is no need to use sparse reward signals to learn basic navigation in the environment. Effective navigation skills can be learned without extrinsic reward using synthetic navigation task.
 
 The proposed 2-step learning scheme is especially effective in the scenario of multi-task learning in the same environment. The slave agent model, trained for the specific environment, can be effectively reused across different tasks.
 
-\section{Hierarchical RL}
+\section{Related work}
 
 \textbf{Feudal RL}~\cite{Dayan1992FeudalRL}
 
@@ -53,6 +56,30 @@ The critic and the set of possible goals G are not learned but are considered av
 \textbf{HIRO}~\cite{Nachum2018DataEfficientHR}
 
 Ant Gather / Ant Maze / Ant Push / Ant Fall tasks are used. The higher-level policy instructs the lower-level policy via high-level actions, or goals, which it samples anew every c steps. A higher-level policy takes current state and outputs the goal for lower-level policy. The lower-level policy interacts directly with the environment. The goal simply instructs the lower-level policy to reach the specific state. The reward for lower-level policy is provided if the environment yields an observation close to matching the desired goal.
+
+\textbf{Curiosity-driven learing}~\cite{Pathak2017CuriosityDrivenEB}
+
+Intrinsic Curiosity Module (ICM) predict next state $\hat{s}_{t+1}$ from the current state $s_t$ and action $a_t$ povided by policy network. Difference between predicted $\hat{s}_{t+1}$ and true $s_{t+1}$ is the intrinsic reward for the action $a_t$. Sum of reward from ICM and extrinistic reward is used to train policy network.
+
+\textbf{Random Network Distillation}
+
+Another approach to the curiosity-driven exploration is proposed by \cite{Burda2019ExplorationBR}. Exploration bonus is based on predicting the output of a fixed and randomly initialized neural network on the next state, given the next state itself. The intuition is that predictive models have low error in states similar to the ones they have been trained on. The method shows better than average human performance on Montezuma’s Revenge.
+
+\textbf{Learning to communicate}~\cite{Mordatch2018EmergenceOG}
+
+Multi-agent game: one agent knows the task and should communicate that task to other agents via broadcast messages. An example of task is to move other agent to the the specific location in the 2D world.
+
+\textbf{DADS}
+
+\cite{Sharma2020DynamicsAwareUD} propose to use an intrinsic reward, which encourages an agent to learn valuable "skills". The intrinsic reward is high if the changes in the environment is predictable for the specific 'skill' and, if the changes in the environment are different for different skills. The separate network is trained to predict environment changes for the specific skill, and its performance is used to calculate intrinsic reward value.
+
+\section{Environments}
+
+\begin{itemize}
+  \item Classic Atari games (~\cite{Mnih2013PlayingAW}). They are deterministic, have discrete actions, use images as an input. Some of the environments e. g. Montezuma's revenge, Pitfall have extremely sparse rewards.
+  \item Minecraft (https://minerl.io/competition/)
+  \item Animal AI Testbed (http://animalaiolympics.com/AAI/)
+\end{itemize}
 
 \bibliographystyle{abbrvnat}
 \bibliography{main}
