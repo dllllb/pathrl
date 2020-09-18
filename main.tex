@@ -1,6 +1,13 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
-
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue
+}
+\newcommand{\ntt}[1]{{\color{red} [#1]}}
 \usepackage[square,authoryear]{natbib}
 %\usepackage{hyperref}
 \usepackage[a4paper, margin=0.1\paperwidth]{geometry}
@@ -77,12 +84,19 @@ Multi-agent game: one agent knows the task and should communicate that task to o
 
 Two models are used: world model and policy model. World model consists of vision compression model V and memory RNN M. V is a variational autoencoder that learns to produce compressed state of a vision input Z. M learns to predict distribution of possible next states $Z_{t+1}$ given its hidden state $H_t$, current state $Z_t$ and action $a_t$. Policy model P receives current state $Z_t$ and current hidden stat $H_t$ and should output a distribution of actions $a_t$ in order to maximize expected reward.
 
+\textbf{Hierarchical Actor-Critic}~\citep{levy2017learning}
+
+First, define Universal MDP. UMDP is just usual MDP with extra set of Goals, denoted as $G$. The transaction probability function doesn't depend on $G$, but agent's policy is. Authors suggest that some goal from $G$ is chosen before game for agent acting in UMPD.
+
+Next, authors make several such agents and label them from $0$ to $k$. $k$ is hyperparameter of model. Every agent from $1$ to $k$ have a set of actions $A$ equal to $S$ or subset of $S$. The lowest level agent number $0$ have action space equal to MDP from initial task.
+
 \section{Environments}
 
 \begin{itemize}
   \item Classic Atari games \citep{Mnih2013PlayingAW}. They are deterministic, have discrete actions, use images as an input. Some of the environments e. g. Montezuma's revenge, Pitfall have extremely sparse rewards.
-  \item Minecraft (https://minerl.io/competition/)
-  \item Animal AI Testbed (http://animalaiolympics.com/AAI/)
+  \item \href{https://minerl.io/competition/}{Minecraft}
+  \item \href{http://animalaiolympics.com/AAI/}{Animal AI Testbed} 
+  \item ALFRED~\citep{ALFRED20}
 \end{itemize}
 
 \bibliographystyle{abbrvnat}
