@@ -22,25 +22,42 @@
 
 \section{Path-RL pre-training}
 
-The first phase of training can be described as the two-agent game: master agent learns to produce a description of the task in some restricted inter-agent language, slave agent receives the task description and learns to execute the task. Both agents receive reward if slave successfully executes the task. The tasks are defined as states that should be reached from some other states. The master agent takes desired state as its input and produces its description. The slave agent takes description from the master agent and current state and produces the next action. The two-agent game is somewhat similar to the cooperative game proposed in~\citep{Mordatch2018EmergenceOG}.
+\subsection{First phase}
+
+The first phase of training can be described as the two-agent game: master agent $M$ learns to produce a description of the task in some restricted inter-agent language, slave agent $W$ receives the task description and learns to execute the task. Both agents receive reward if slave successfully executes the task. The tasks are defined as states that should be reached from some other states. The master agent takes desired state as its input and produces its description. The slave agent takes description from the master agent and current state and produces the next action. The two-agent game is somewhat similar to the cooperative game proposed in~\citep{Mordatch2018EmergenceOG}.
 
 Generally, the task is a pair of queries which define the set of initial states and the set of states to reach. In current work we consider only the singleton sets of states, hence, the task is defined as a pair of states.
 
 The master agent does not know current state of the slave agent during encoding, hence, it can't encode a set of instructions for the slave agent it is forced to produce some declarative description of the desired state.
 
+To summarise, in the first phase, actions are produced using the following approach: $a_t = W(s_t, M(s_g))$.
+
 The inter-agent language can be similar to the query language where the desired state is described as the set of predicates. In contrast to the exact algorithm of actions, the set of predicates is the declarative form of instructions.
 
 During the training time an agent performs exploration of the environment using some exploration policy. Random trajectories of the exploration are then used to define the training tasks, hence, only pairs of states where one state is attainable from the other are used for training. Other alternatives for the exploration policy can be used in order to better explore the environment and collect diverse trajectories. One of the options is to use curiosity-based exploration policy \citep{Pathak2017CuriosityDrivenEB, Burda2019ExplorationBR}.
 
-The possible training scheme is to reward agents for moving in the direction of the target state $u'$ from the current state $u$. Positive reward can be provided for the diminishing difference between $u$ and $u'$. This removes the requirement to reach the exact target state which is not always possible in changing environments. In this case the function that estimates distance between states is required. One of the option is to use image similarity function e. g. structural similarity index (SSIM,~\citep{Wang2004ImageQA}). The other option is to train a model to estimate the mean number of actions between states.
+The possible training scheme is to reward agents for moving in the direction of the target state $s_g$ from the current state $s_t$. Positive reward can be provided for the diminishing difference between $s_g$ and $s_t$. This removes the requirement to reach the exact target state which is not always possible in changing environments. In this case the function that estimates distance between states is required. One of the option is to use image similarity function e. g. structural similarity index (SSIM,~\citep{Wang2004ImageQA}). The other option is to train a model to estimate the mean number of actions between states.
 
-The second phase of training of this model is the addition of goal definition agent which replaces master agent after training. The goal definition agent receives only the current state and produces the set of predicates that could lead to the high reward. I. e. the goal agent learns to generate the set of predicates that describe high-reward states. Slave agent weights should be frozen during the second phase of training to force goal agent to use the same "language" of instructions as master agent. World model states and reward predictions can be used for the goal agent training, e. g. goal definition agent reward can be defined as the mean reward of the mean state rewards for the states that are selected by the produced query (i. e. the expected reward of executing the query by a slave agent).
+\subsection{Second phase}
+
+The second phase of training of this model is the addition of goal definition agent $G$ which replaces master agent $M$ after training. The goal definition agent receives only the current state and produces the set of predicates that could lead to the high reward: $e_g = G(s_t)$. I. e. the goal agent learns to generate the set of predicates that describe high-reward states. In the second phase, actions are produced using the following approach: $a_t = W(s_t, G(s_t))$. Slave agent weights should be frozen during the second phase of training to force goal agent to use the same "language" of instructions as master agent.
+
+World model states and reward predictions can be used for the goal agent training, e. g. goal definition agent reward can be defined as the mean reward of the mean state rewards for the states that are selected by the produced query (i. e. the expected reward of executing the query by a slave agent).
+
+
+\subsection{World state representations}
 
 One of the options is to use encoded representations of the environment states instead of directly using environment states for master agent and goal definition agent. I. e. representation is the world state encoded by the world model pre-trained on the next state prediction task like in~\citep{Ha2018RecurrentWM}.
+
+\subsection{Motivation}
 
 The proposed scheme is effective for the environment with sparse rewards: there is no need to use sparse reward signals to learn basic navigation in the environment. Effective navigation skills can be learned without extrinsic reward using synthetic navigation task.
 
 The proposed 2-step learning scheme is especially effective in the scenario of multi-task learning in the same environment. The slave agent model, trained for the specific environment, can be effectively reused across different tasks.
+
+\subsection{Path-RL vs model-based RL}
+
+An RL task can be spited on three independent modules: world model, planner and goal selector. In model-based RL with Monte-Carlo tree search as in~\citep{Schrittwieser2020MasteringAG} planner and goal selector are merged into one module. In Path-RL we propose to merge world model and planner into one module.
 
 \section{Related work}
 
