@@ -34,7 +34,11 @@ The master agent does not know current state of the slave agent during encoding,
 
 To summarise, in the first phase, actions are produced using the following approach: $a_t = W(s_t, M(s_g))$.
 
+\subsubsection{Exploration for navigation tasks collection}
+
 During the training time an agent performs exploration of the environment using some exploration policy. Random trajectories of the exploration are then used to define the training tasks, hence, only pairs of states where one state is attainable from the other are used for training. Other alternatives for the exploration policy can be used in order to better explore the environment and collect diverse trajectories. One of the options is to use curiosity-based exploration policy \citep{Pathak2017CuriosityDrivenEB, Burda2019ExplorationBR}.
+
+\subsubsection{Navigaion reward}
 
 The possible training scheme is to reward agents for moving in the direction of the target state $s_g$ from the current state $s_t$. Positive reward can be provided for the diminishing difference between $s_g$ and $s_t$. This removes the requirement to reach the exact target state which is not always possible in changing environments. In this case the function that estimates distance between states is required. One of the option is to use image similarity function e. g. structural similarity index (SSIM,~\citep{Wang2004ImageQA}). The other option is to train a model to estimate the mean number of actions between states.
 
@@ -43,7 +47,6 @@ The possible training scheme is to reward agents for moving in the direction of 
 The second phase of training of this model is the addition of goal definition agent $G$ which replaces master agent $M$ after training. The goal definition agent receives only the current state and produces the set of predicates that could lead to the high reward: $e_g = G(s_t)$. I. e. the goal agent learns to generate the set of predicates that describe high-reward states. In the second phase, actions are produced using the following approach: $a_t = W(s_t, G(s_t))$. Slave agent weights should be frozen during the second phase of training to force goal agent to use the same "language" of instructions as master agent.
 
 World model states and reward predictions can be used for the goal agent training, e. g. goal definition agent reward can be defined as the mean reward of the mean state rewards for the states that are selected by the produced query (i. e. the expected reward of executing the query by a slave agent).
-
 
 \subsection{World state representations}
 
