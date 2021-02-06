@@ -38,7 +38,7 @@ To summarise, in the first phase, actions are produced using the following appro
 
 During the training time an agent performs exploration of the environment using some exploration policy. Random trajectories of the exploration are then used to define the training tasks, hence, only pairs of states where one state is attainable from the other are used for training. Other alternatives for the exploration policy can be used in order to better explore the environment and collect diverse trajectories. One of the options is to use curiosity-based exploration policy \citep{Pathak2017CuriosityDrivenEB, Burda2019ExplorationBR}.
 
-\subsubsection{Navigaion reward}
+\subsubsection{Navigation reward}
 
 The possible training scheme is to reward agents for moving in the direction of the target state $s_g$ from the current state $s_t$. Positive reward can be provided for the diminishing difference between $s_g$ and $s_t$. This removes the requirement to reach the exact target state which is not always possible in changing environments. In this case the function that estimates distance between states is required. One of the option is to use image similarity function e. g. structural similarity index (SSIM,~\citep{Wang2004ImageQA}). The other option is to train a model to estimate the mean number of actions between states.
 
