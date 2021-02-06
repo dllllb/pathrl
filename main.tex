@@ -46,7 +46,9 @@ The possible training scheme is to reward agents for moving in the direction of 
 
 The second phase of training of this model is the addition of goal definition agent $G$ which replaces master agent $M$ after training. The goal definition agent receives only the current state and produces the set of predicates that could lead to the high reward: $e_g = G(s_t)$. I. e. the goal agent learns to generate the set of predicates that describe high-reward states. In the second phase, actions are produced using the following approach: $a_t = W(s_t, G(s_t))$. Slave agent weights should be frozen during the second phase of training to force goal agent to use the same "language" of instructions as master agent.
 
-World model states and reward predictions can be used for the goal agent training, e. g. goal definition agent reward can be defined as the mean reward of the mean state rewards for the states that are selected by the produced query (i. e. the expected reward of executing the query by a slave agent).
+\subsubsection{Reward scheme}
+
+The combination of goal agent and frozen slave agent are trained on the two rewards: extrinistic reward, i. e. true reward of the environment and intrinsic curiocity reward for effective exploration. In this scheme the goal agent is encoraged to propose both queries for states with high extrinistic rewards and queries for the states in the "unknown territories" with good possibilty of curiocity reward. The combination of curiocity reward scheme and slave agent navigation have some parallels with Go-explore algorithm~\citep{Ecoffet2019GoExploreAN} where navigation is done via virtual environment resets.
 
 \subsection{World state representations}
 
