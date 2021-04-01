@@ -12,7 +12,7 @@
 %\usepackage{hyperref}
 \usepackage[a4paper, margin=0.1\paperwidth]{geometry}
 
-\title{State description language and Path-RL}
+\title{State description language and PathRL}
 \author{}
 \date{}
 
@@ -20,45 +20,53 @@
 
 \maketitle
 
-\section{Path-RL pre-training}
+\section{PathRL algorithm}
 
 \subsection{First phase}
 
-The first phase of training can be described as the two-agent game: master agent $M$ learns to produce a description of the task in some restricted inter-agent language, slave agent $W$ receives the task description and learns to execute the task. Both agents receive reward if slave successfully executes the task. The tasks are defined as states that should be reached from some other states. The master agent takes desired state as its input and produces its description. The slave agent takes description from the master agent and current state and produces the next action. The two-agent game is somewhat similar to the cooperative game proposed in~\citep{Mordatch2018EmergenceOG}.
+The first phase of training can be described as a two-agent game: the encoder agent $E$ learns to produce a description of the task in some restricted inter-agent language, the navigator agent $N$ receives the task description and learns to execute the task. Both agents receive reward if navigator successfully executes the task. The tasks are defined as states that should be reached from some other states. The encoder agent takes desired state $s_g$ as its input and produces its description. The navigator takes description $E(s_g)$ from the encoder and current state $s_t$ and produces the next action: $a_t = N(s_t, E(s_g))$. The two-agent game is somewhat similar to the cooperative game proposed in~\citep{Mordatch2018EmergenceOG}.
 
 The inter-agent language can be similar to the query language where the desired state is described as the set of predicates. In contrast to the exact algorithm of actions, the set of predicates is the declarative form of instructions.
+% XXX not just the abstract controllable embedding of target state, but its high level description, generated based on it 
 
 Generally, the task is a pair of queries which define the set of initial states and the set of states to reach. In current work we consider only the singleton sets of states, hence, the task is defined as a pair of states.
+% XXX maybe the target query and a hint vector? as it seems possible that the worker-agent could stray arbitrarily far away from the destination on the embedded state manifold
 
-The master agent does not know current state of the slave agent during encoding, hence, it can't encode a set of instructions for the slave agent it is forced to produce some declarative description of the desired state.
-
-To summarise, in the first phase, actions are produced using the following approach: $a_t = W(s_t, M(s_g))$.
+The encoder does not know current state of the navigator during encoding, hence, it can't encode a set of instructions for the navigator agent and is forced to produce some declarative description of the desired state.
 
 \subsubsection{Exploration for navigation tasks collection}
 
-During the training time an agent performs exploration of the environment using some exploration policy. Random trajectories of the exploration are then used to define the training tasks, hence, only pairs of states where one state is attainable from the other are used for training. Other alternatives for the exploration policy can be used in order to better explore the environment and collect diverse trajectories. One of the options is to use curiosity-based exploration policy \citep{Pathak2017CuriosityDrivenEB, Burda2019ExplorationBR}.
+During the training time an agent performs exploration of the environment using some exploration policy $P_e$. Random trajectories of the exploration are then used to define the training tasks, hence, only pairs of states where one state is attainable from the other are used for training. Different types of exploration policy can be used in order to better explore the environment and collect diverse trajectories. One of the options is to use curiosity-based exploration policy \citep{Pathak2017CuriosityDrivenEB, Burda2019ExplorationBR}.
 
 \subsubsection{Navigation reward}
 
-The possible training scheme is to reward agents for moving in the direction of the target state $s_g$ from the current state $s_t$. Positive reward can be provided for the diminishing difference between $s_g$ and $s_t$. This removes the requirement to reach the exact target state which is not always possible in changing environments. In this case the function that estimates distance between states is required. One of the option is to use image similarity function e. g. structural similarity index (SSIM,~\citep{Wang2004ImageQA}). The other option is to train a model to estimate the mean number of actions between states.
+One possible training scheme is to reward agents for moving in the direction of the target state $s_g$ from the current state $s_t$. Positive reward can be provided for the diminishing difference between $s_g$ and $s_t$. This removes the requirement to reach the exact target state which is not always possible in changing environments. In this case the function $d(s_a, s_b)$ that estimates the similarity between states is required. The state similarity function should also be transitive i. e. if $d(s_a, s_b) > d(s_a, s_c)$ then $d(s_b, s_c) > d(s_a, s_c)$.
+
+Another scheme is to reward agent from reaching the state that is similar enough to the target state. In this case, the state similarity function is ton required to be transitive.
+
+\subsubsection{State similarity function}
+
+State similarity function $d(s_a, s_b)$ measures the similarity between the states. Some states, that are different, but that difference are not controlled by the agent should be considered equivalent. The example of the set of equivalent states would be states with different position of some oscillating pendulum. Hence, it is reasonable for the state similarity function to work on the state embeddings, where only the information, controllable by an agent is present, and other information is dropped. The state encoder, that drops information that are not controllable can be trained in self-supervised manner on the inverse dynamics task. I. e. the self-supervised  task is to predict the action from the embeddings of the pair of consecutive states.
 
 \subsection{Second phase}
 
-The second phase of training of this model is the addition of goal definition agent $G$ which replaces master agent $M$ after training. The goal definition agent receives only the current state and produces the set of predicates that could lead to the high reward: $e_g = G(s_t)$. I. e. the goal agent learns to generate the set of predicates that describe high-reward states. In the second phase, actions are produced using the following approach: $a_t = W(s_t, G(s_t))$. Slave agent weights should be frozen during the second phase of training to force goal agent to use the same "language" of instructions as master agent.
+The second phase of training of this model is the addition of goal definition agent $G$ which replaces encoder agent $E$ after training. The goal definition agent receives only the current state and produces the set of predicates that could lead to the high reward: $e_g = G(s_t)$. I. e. the goal agent learns to generate the set of predicates that describe high-reward states. In the second phase, actions are produced using the following approach: $a_t = N(s_t, G(s_t))$. Navigator agent weights should be frozen during the second phase of training to force goal agent to use the same "language" of instructions as encoder agent.
 
 \subsubsection{Reward scheme}
 
-The combination of goal agent and frozen slave agent are trained on the two rewards: extrinistic reward, i. e. true reward of the environment and intrinsic curiocity reward for effective exploration. In this scheme the goal agent is encoraged to propose both queries for states with high extrinistic rewards and queries for the states in the "unknown territories" with good possibilty of curiocity reward. The combination of curiocity reward scheme and slave agent navigation have some parallels with Go-explore algorithm~\citep{Ecoffet2019GoExploreAN} where navigation is done via virtual environment resets.
+The combination of goal agent and frozen navigator agent are trained on the two rewards: extrinsic reward, i. e. true reward of the environment and intrinsic curiosity reward for effective exploration. In this scheme the goal agent is encouraged to propose both queries for states with high extrinsic rewards and queries for the states in the "unknown territories" with good possibility of curiosity reward. The combination of curiosity reward scheme and navigator agent have some parallels with Go-explore algorithm~\citep{Ecoffet2019GoExploreAN} where navigation is done via virtual environment resets.
 
 \subsection{World state representations}
 
-One of the options is to use encoded representations of the environment states instead of directly using environment states for master, slave and goal definition agents. I. e. representation is the world state encoded by the world model pre-trained on the next state prediction task like in~\citep{Ha2018RecurrentWM}.
+One of the options is to use encoded representations of the environment states instead of directly using environment states for encoder, navigator and goal definition agents. I. e. representation is the world state encoded by the world model pre-trained on the next state prediction task like in~\citep{Ha2018RecurrentWM}.
 
 \subsection{Motivation}
 
 The proposed scheme is effective for the environment with sparse rewards: there is no need to use sparse reward signals to learn basic navigation in the environment. Effective navigation skills can be learned without extrinsic reward using synthetic navigation task.
 
-The proposed 2-step learning scheme is especially effective in the scenario of multi-task learning in the same environment. The slave agent model, trained for the specific environment, can be effectively reused across different tasks.
+The proposed 2-step learning scheme is especially effective in the scenario of multi-task learning in the same environment. The navigator agent model, trained for the specific environment, can be effectively reused across different tasks.
+
+As shown in \citep{Ecoffet2019GoExploreAN} the exploration of distant states greatly improves the algorithm effectiveness. The availability of navigator agent allows to train a goal agent that is encouraged to explore distant states. Unlike \citep{Ecoffet2019GoExploreAN} this scheme of agent training does not rely on some "hacks' like virtual environment reset.
 
 \subsection{Path-RL vs model-based RL}
 
@@ -88,7 +96,7 @@ Ant Gather / Ant Maze / Ant Push / Ant Fall tasks are used. The higher-level pol
 
 \textbf{Curiosity-driven learing}~\citep{Pathak2017CuriosityDrivenEB}
 
-Intrinsic Curiosity Module (ICM) predict next state $\hat{s}_{t+1}$ from the current state $s_t$ and action $a_t$ povided by policy network. Difference between predicted $\hat{s}_{t+1}$ and true $s_{t+1}$ is the intrinsic reward for the action $a_t$. Sum of reward from ICM and extrinistic reward is used to train policy network.
+Intrinsic Curiosity Module (ICM) predict next state $\hat{s}_{t+1}$ from the current state $s_t$ and action $a_t$ povided by policy network. Difference between predicted $\hat{s}_{t+1}$ and true $s_{t+1}$ is the intrinsic reward for the action $a_t$. Sum of reward from ICM and extrinistic reward is used to train policy network. ICM is in fact a world model.
 
 \textbf{Random Network Distillation}
 
@@ -112,10 +120,42 @@ First, define Universal MDP. UMDP is just usual MDP with extra set of Goals, den
 
 Next, authors make several such agents and label them from $0$ to $k$. $k$ is hyperparameter of model. Every agent from $1$ to $k$ have a set of actions $A$ equal to $S$ or subset of $S$. The lowest level agent number $0$ have action space equal to MDP from initial task.
 
+\textbf{Never-Give-Up intrinsic reward}~\citep{Badia2020NeverGU}
+
+The intrinsic reward is a combination of rewards from two modules: the episodic novelty module and the life-long novelty module.
+
+The life-long novelty module is implemented as the Random Network Distillation~\citep{Burda2019ExplorationBR} based reward.
+
+A self-supervised inverse dynamics model $f$ is used to produce controllable state embeddings $f(x_t)$ The inverse dynamics model is the Siamese net, and is trained to predict the agent action for the pair of consecutive states $x_t$ and $x_{t+1}$. This self-supervised task encourages dropping the parts of the states that are not controllable by the agent, and, hence, are not usable for the action prediction.
+
+The episodic novelty module reward is defined as the inverse of the number of visits of the state, having specific controllable embedding: $n(f(x_t))$. $n(f(x_t))$ is approximated as the sum of similarities between the k nearest controllable embeddings from the episode memory bank $M$. Memory bank is cleared before the start of each episode.
+
+\textbf{Go-explore}~\citep{Ecoffet2019GoExploreAN}
+
+High-dimensional state is represented as low-dimensional cell: (1) without domain knowledge: downsampled cell (low-resolution state image), (2) with domain knowledge: vector of variables hand-crafted from state image.
+
+Learning consists from two phases:
+
+Phase 1: Explore until solved.
+\begin{enumerate}
+  \item Choose a cell from the archive probabilistically (optionally prefer promising ones, e.g. newer cells)
+By explicitly storing a variety of stepping stones in an archive, Go-Explore remembers and returns to promising areas for exploration
+  \item Go back to that cell. In a resettable environment, one can simply reset the environment state to that of the cell. Most virtual environments are resettable (e. g. save/load state in empulator).
+  \item Explore from that cell (e.g. randomly for n steps)
+  \item For all cells visited (including new cells), if the new trajectory is better (e.g. higher score), swap it in as the trajectory to reach that cell
+\end{enumerate}
+
+Phase 2: Robustify. Robustify several found solutions (trajectories with high reward) into a deep neural network with an imitation learning algorithm. Imiation learning approach from "Learing from a single demonstration" is used.
+
+\textbf{HER}~\citep{Andrychowicz2017HindsightER}
+
+A Multi-task RL agent gets current goal in addition to the observation. The goal is defined as the target state, that should be achieved. It is nearly impossible to accidental get the positive reward in the large state space. In Hindsight Experience Replay final states of the episodes are considered as target states for synthetic goals. The value function model is trained on both real goals and synthetic goals.
+
 \section{Environments}
 
 \begin{itemize}
-  \item Classic Atari games \citep{Mnih2013PlayingAW}. They are deterministic, have discrete actions, use images as an input. Some of the environments e. g. Montezuma's revenge, Pitfall have extremely sparse rewards.
+  \item MiniGrid~\citep{gym_minigrid}
+  \item Classic Atari games~\citep{Mnih2013PlayingAW}. They are deterministic, have discrete actions, use images as an input. Some of the environments e. g. Montezuma's revenge, Pitfall have extremely sparse rewards.
   \item \href{https://minerl.io/competition/}{Minecraft}
   \item \href{http://animalaiolympics.com/AAI/}{Animal AI Testbed} 
   \item ALFRED~\citep{ALFRED20}
