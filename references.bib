@@ -423,3 +423,92 @@ version: 2},
 	pages = {7671--7684},
 	annote = {Comment: 28 pages. Accepted at NeurIPS 2020}
 }
+
+@article{hafner_dream_2020,
+	title = {Dream to {Control}: {Learning} {Behaviors} by {Latent} {Imagination}},
+	shorttitle = {Dream to {Control}},
+	url = {http://arxiv.org/abs/1912.01603},
+	abstract = {Learned world models summarize an agent's experience to facilitate learning complex behaviors. While learning world models from high-dimensional sensory inputs is becoming feasible through deep learning, there are many potential ways for deriving behaviors from them. We present Dreamer, a reinforcement learning agent that solves long-horizon tasks from images purely by latent imagination. We efficiently learn behaviors by propagating analytic gradients of learned state values back through trajectories imagined in the compact state space of a learned world model. On 20 challenging visual control tasks, Dreamer exceeds existing approaches in data-efficiency, computation time, and final performance.},
+	urldate = {2021-04-29},
+	journal = {arXiv:1912.01603 [cs]},
+	author = {Hafner, Danijar and Lillicrap, Timothy and Ba, Jimmy and Norouzi, Mohammad},
+	month = mar,
+	year = {2020},
+	note = {arXiv: 1912.01603},
+	keywords = {Computer Science - Artificial Intelligence, Computer Science - Machine Learning, Computer Science - Robotics, interesting, study},
+	annote = {Comment: 9 pages, 12 figures}
+}
+
+
+@article{hafner_mastering_2020,
+	title = {Mastering {Atari} with {Discrete} {World} {Models}},
+	url = {http://arxiv.org/abs/2010.02193},
+	abstract = {Intelligent agents need to generalize from past experience to achieve goals in complex environments. World models facilitate such generalization and allow learning behaviors from imagined outcomes to increase sample-efficiency. While learning world models from image inputs has recently become feasible for some tasks, modeling Atari games accurately enough to derive successful behaviors has remained an open challenge for many years. We introduce DreamerV2, a reinforcement learning agent that learns behaviors purely from predictions in the compact latent space of a powerful world model. The world model uses discrete representations and is trained separately from the policy. DreamerV2 constitutes the first agent that achieves human-level performance on the Atari benchmark of 55 tasks by learning behaviors inside a separately trained world model. With the same computational budget and wall-clock time, DreamerV2 reaches 200M frames and exceeds the final performance of the top single-GPU agents IQN and Rainbow.},
+	urldate = {2021-02-21},
+	journal = {arXiv:2010.02193 [cs, stat]},
+	author = {Hafner, Danijar and Lillicrap, Timothy and Norouzi, Mohammad and Ba, Jimmy},
+	month = dec,
+	year = {2020},
+	note = {arXiv: 2010.02193},
+	keywords = {Computer Science - Artificial Intelligence, Computer Science - Machine Learning, interesting, Statistics - Machine Learning, study},
+	annote = {Comment: 24 pages, 10 figures, 5 tables}
+}
+
+@inproceedings{hafner_learning_2019,
+	title = {Learning {Latent} {Dynamics} for {Planning} from {Pixels}},
+	url = {http://proceedings.mlr.press/v97/hafner19a.html},
+	abstract = {Planning has been very successful for control tasks with known environment dynamics. To leverage planning in unknown environments, the agent needs to learn the dynamics from interactions with the w...},
+	language = {en},
+	urldate = {2021-02-21},
+	booktitle = {International {Conference} on {Machine} {Learning}},
+	publisher = {PMLR},
+	author = {Hafner, Danijar and Lillicrap, Timothy and Fischer, Ian and Villegas, Ruben and Ha, David and Lee, Honglak and Davidson, James},
+	month = may,
+	year = {2019},
+	note = {ISSN: 2640-3498},
+	keywords = {interesting, study},
+	pages = {2555--2565}
+}
+
+@article{chen_decision_2021,
+	title = {Decision {Transformer}: {Reinforcement} {Learning} via {Sequence} {Modeling}},
+	shorttitle = {Decision {Transformer}},
+	url = {http://arxiv.org/abs/2106.01345},
+	abstract = {We present a framework that abstracts Reinforcement Learning (RL) as a sequence modeling problem. This allows us to draw upon the simplicity and scalability of the Transformer architecture, and associated advances in language modeling such as GPT-x and BERT. In particular, we present Decision Transformer, an architecture that casts the problem of RL as conditional sequence modeling. Unlike prior approaches to RL that fit value functions or compute policy gradients, Decision Transformer simply outputs the optimal actions by leveraging a causally masked Transformer. By conditioning an autoregressive model on the desired return (reward), past states, and actions, our Decision Transformer model can generate future actions that achieve the desired return. Despite its simplicity, Decision Transformer matches or exceeds the performance of state-of-the-art model-free offline RL baselines on Atari, OpenAI Gym, and Key-to-Door tasks.},
+	urldate = {2021-06-06},
+	journal = {arXiv:2106.01345 [cs]},
+	author = {Chen, Lili and Lu, Kevin and Rajeswaran, Aravind and Lee, Kimin and Grover, Aditya and Laskin, Michael and Abbeel, Pieter and Srinivas, Aravind and Mordatch, Igor},
+	month = jun,
+	year = {2021},
+	note = {arXiv: 2106.01345},
+	keywords = {Computer Science - Artificial Intelligence, Computer Science - Machine Learning},
+	annote = {Comment: First two authors contributed equally. Last two authors advised equally}
+}
+
+@inproceedings{schulman_high-dimensional_2016,
+	address = {San Juan, Puerto Rico},
+	title = {High-{Dimensional} {Continuous} {Control} {Using} {Generalized} {Advantage} {Estimation}},
+	url = {http://arxiv.org/abs/1506.02438},
+	abstract = {Policy gradient methods are an appealing approach in reinforcement learning because they directly optimize the cumulative reward and can straightforwardly be used with nonlinear function approximators such as neural networks. The two main challenges are the large number of samples typically required, and the difficulty of obtaining stable and steady improvement despite the nonstationarity of the incoming data. We address the first challenge by using value functions to substantially reduce the variance of policy gradient estimates at the cost of some bias, with an exponentially-weighted estimator of the advantage function that is analogous to TD(lambda). We address the second challenge by using trust region optimization procedure for both the policy and the value function, which are represented by neural networks. Our approach yields strong empirical results on highly challenging 3D locomotion tasks, learning running gaits for bipedal and quadrupedal simulated robots, and learning a policy for getting the biped to stand up from starting out lying on the ground. In contrast to a body of prior work that uses hand-crafted policy representations, our neural network policies map directly from raw kinematics to joint torques. Our algorithm is fully model-free, and the amount of simulated experience required for the learning tasks on 3D bipeds corresponds to 1-2 weeks of real time.},
+	booktitle = {4th {International} {Conference} on {Learning} {Representations}, {ICLR} 2016, {San} {Juan}, {Puerto} {Rico}, {May} 2-4, 2016, {Conference} {Track} {Proceedings}},
+	author = {Schulman, John and Moritz, Philipp and Levine, Sergey and Jordan, Michael I. and Abbeel, Pieter},
+	editor = {Bengio, Yoshua and LeCun, Yann},
+	year = {2016},
+	keywords = {Computer Science - Machine Learning, Computer Science - Robotics, Electrical Engineering and Systems Science - Systems and Control, study}
+}
+
+@inproceedings{espeholt_impala_2018,
+	title = {{IMPALA}: {Scalable} {Distributed} {Deep}-{RL} with {Importance} {Weighted} {Actor}-{Learner} {Architectures}},
+	shorttitle = {{IMPALA}},
+	url = {http://proceedings.mlr.press/v80/espeholt18a.html},
+	abstract = {In this work we aim to solve a large collection of tasks using a single reinforcement learning agent with a single set of parameters. A key challenge is to handle the increased amount of data and extended training time. We have developed a new distributed agent IMPALA (Importance Weighted Actor-Learner Architecture) that not only uses resources more efficiently in single-machine training but also scales to thousands of machines without sacrificing data efficiency or resource utilisation. We achieve stable learning at high throughput by combining decoupled acting and learning with a novel off-policy correction method called V-trace. We demonstrate the effectiveness of IMPALA for multi-task reinforcement learning on DMLab-30 (a set of 30 tasks from the DeepMind Lab environment (Beattie et al., 2016)) and Atari57 (all available Atari games in Arcade Learning Environment (Bellemare et al., 2013a)). Our results show that IMPALA is able to achieve better performance than previous agents with less data, and crucially exhibits positive transfer between tasks as a result of its multi-task approach.},
+	language = {en},
+	urldate = {2021-06-16},
+	booktitle = {International {Conference} on {Machine} {Learning}},
+	publisher = {PMLR},
+	author = {Espeholt, Lasse and Soyer, Hubert and Munos, Remi and Simonyan, Karen and Mnih, Vlad and Ward, Tom and Doron, Yotam and Firoiu, Vlad and Harley, Tim and Dunning, Iain and Legg, Shane and Kavukcuoglu, Koray},
+	month = jul,
+	year = {2018},
+	note = {ISSN: 2640-3498},
+	pages = {1407--1416}
+}

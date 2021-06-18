@@ -766,6 +766,7 @@ exploration it picks either a synthetic goal-cell, or a neighbouring cell or an 
 cell from the archive. Whenever the set goal is reached or the steps runs out, then a
 new goal is picked, \citep[p.~21]{ecoffet_first_2021}.
 
+\medskip
 % \citep{salimans_learning_2018} is like HER but without goals:
 %  it gradually backtracks the initial state from the end of the trajectory to its beginning.
 %  The agent learns to improve the reward (as measued in where?) and then the initial state
@@ -843,6 +844,94 @@ that actually causes targeted and well-explored behaviour, rather than an algori
 
 To review: \citep{guo_self-imitation_2019}, \citep{liu_learning_2018} -- looks like path rl,
 and, of course, \citep{citation_needed}.
+
+\medskip
+
+% this should be rewrtitten, as it does not answer any review question:
+%  contributions, relevance, criticism
+A triplet of papers \citep{hafner_learning_2019,hafner_dream_2020,hafner_mastering_2020} propose
+to learn the optimal control policy via dynamics in the latent space, wherein a stochastic
+model of the world is identified and the agent learns its policy using the analytical
+gradients through the learnt dynamics and reward function.
+%
+In \citep[alg.~1]{hafner_dream_2020} the training alternates between learning latent dynamics
+and observation-to-latent representations, and optimizing the policy in the latent space of
+the \emph{virtual} environment determined by the identified ``world model''.
+% iterative learning control
+The world model is trained from experience and the policy is trained with a frozen world model.
+
+During the second phase experience is collected in the real environment (how?)
+% act out the learnt policy in the real env through the representation model.
+
+The model of the ground-truth environment is that of the partially observed MDP (incomplete
+information) with the following
+\begin{align*}
+  a_t & \sim p(a \mid o_{\leq t}, a_{< t})
+    \,, \\
+  o_{t+1}, r_{t+1}
+    & \sim p_t(o, r \mid o_{\leq t}, a_{< t}, a_t)
+    \,,
+\end{align*}
+where non-stationarity of $p_t$ is due to the unobserved true full state of the environment.
+% 
+The proposed world model is
+\begin{equation*}
+  \begin{aligned}
+    & \text{representation model}
+      & & h_{t+1} \sim p(h \mid h_t, a_{\leq t}, o_{\leq t})
+          \,, \\
+    & \text{transition dynamics}
+      & & h_{t+1} \sim q(h \mid h_t, a_t)
+          \,, \\
+    & \text{rewards}
+      & & r_{t+1} \sim q(r \mid h_{t+1})
+          \,, \\
+  \end{aligned}
+\end{equation*}
+and the agent's policy (and value for actor-critic) depends on the inferred latent state $
+  a_t \sim \pi(a\mid h_t)
+$. The model is designed in such way that it is possible to differentiably sample from it.
+
+The policy is learnt using the imagined trajectories cast from the current state of the 
+ground-truth environment: infer the recent latent state $h_t$ from the history $
+  (o_s, a_s, r_s)_{s \leq t}
+$ and ``dream'' latent differentiable trajectories from it $
+  (h_\tau, a_\tau, r_\tau)_{\tau \geq t}
+$ with $a_\tau \sim \pi(a\mid h_\tau)$ and the transition and reward dynamics. The agent
+maximizes $
+  \mathbb{E}_{\pi}^{\geq t} \bigl\{
+      \sum_{s \geq \tau} \gamma^{s - \tau} r_s
+    \bigr\}
+$ using path derivatives rather than score-function approach.
+% 
+Since we backprop through a recurrent system, the we face the issue of exploding, of
+vanishing gradients, if the largest-magnitude of eigenvalue of the latent-to-latent
+Jacobian is not away from the the unit circle.
+
+It might be useful to treat this as sort of ``seq-to-seq'' training where we learn
+a policy $\pi$ on the latent state to maximize the sequence of returns or Generalized
+Advantage Estimates, \citep{schulman_high-dimensional_2016}. Since reducing the while
+future trajectory since $\tau$ just to as single return $G_\tau$ might result in poor
+credit assignment.
+
+The imaginary world model is trained using the ELBO \attn{what variational approximations?}.
+\footnote{
+  The inference engines $q$ as opposed to models $p(O, A)$, with the former approximating
+  the model-based posterior.
+}
+%
+The policy is parameterized by
+$$
+a = \tanh\Bigl(\mathcal{N}\bigl(
+    \mu(h), \operatorname{diag}{\sigma^2(h)}
+  \bigr)\Bigr)
+  \,. $$
+
+
+\citet{chen_decision_2021} appeal to the upside-down RL paradigm and treat the task as
+a large seq-to-seq learning task. The most interesting piece is conditioning the action
+taken on the desired return from taking the action and following some generalized policy
+later on.
 
 % XXX what is a plan? can we create ``options'' on-the-fly and enrich the action space
 %  with them? DO we need specia lagos for this, or the PPO, A2C of the good'ol DQN could
