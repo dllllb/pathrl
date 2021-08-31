@@ -40,8 +40,15 @@ An MDP is a tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$
 f: \mathcal{O} \rightarrow \mathcal{H}
 $. We suppose that the goal agent ``talks'' with the navigation agent via a sequence of messages expressed as points in $\mathcal{H}$. All of works 
 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\linewidth]{./assets/diagram.pdf}
+  \caption{PathRL alogorithm}
+  \label{fig:pathrl}
+\end{figure}
 
 \subsection{First phase}
+
 
 % XXX 1st phase: we just train a navigator using go-explore with HER and curiosity-driven third part explorer
 The first phase of training can be described as a two-agent interaction: the encoder agent $E$ learns to produce a description of the task in some restricted inter-agent \emph{language}, and the navigator agent $N$ receives the task description and learns to execute it.
