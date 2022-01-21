@@ -363,6 +363,12 @@ Authors propose to to use manager-worker scheme where manager work in the space 
 
 % paragraph abstract (end)
 
+\paragraph{Consciousness-Inspired Planning Agent \citet{Zhao2021ACP}}
+
+The authors propose to use set-based representations of the observations instead of vector-based. The approach to produce state-based representations is taken from object detection work by \citet{Carion2020EndtoEndOD}. The authors also propose to limit the objects used by world model by introducing the bottleneck, i. e. only a small subset of observation's objects is passed to the world model and returned by it. The returned subset of objects is integrated back to the observation to produce the predicted observation of the next state. The world model is used in the tree search planning algorithm to select most promising action of the agent.
+
+% paragraph abstract (consciousness)
+
 \section{Environments} % (fold)
 \label{sec:environments}
 
