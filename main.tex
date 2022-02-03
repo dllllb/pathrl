@@ -369,7 +369,13 @@ Authors propose to to use manager-worker scheme where manager work in the space 
 
 The authors propose to use set-based representations of the observations instead of vector-based. The approach to produce state-based representations is taken from object detection work by \citet{Carion2020EndtoEndOD}. The authors also propose to limit the objects used by world model by introducing the bottleneck, i. e. only a small subset of observation's objects is passed to the world model and returned by it. The returned subset of objects is integrated back to the observation to produce the predicted observation of the next state. The world model is used in the tree search planning algorithm to select most promising action of the agent.
 
-% paragraph abstract (consciousness)
+% paragraph consciousness (end)
+
+\paragraph{RbExplore \citet{Ugadiarov2021LongTermEI}}
+
+The autors propose a version of Go-explore~\citet{ecoffet_first_2021} exploration algorithm. They propose to use learned state embeddings instead of image upscaling. The state embeddings are learned in unsuprevised manner using the closeness on the trajectory as similarity.
+
+% paragraph rbexplore (end)
 
 \section{Environments} % (fold)
 \label{sec:environments}
