@@ -38,7 +38,7 @@
 
 \subsection{Definitions}
 
-An MDP is a tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$. An observation lies in space $\mathcal{O}$ and is denoted by $O_i$. An inner representation of an observation is denote by $h_i \in \mathcal{H}$. We call a \emph{hash} \attn{representation} function $
+An MDP is a tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$. An observation lies in space $\mathcal{O}$ and is denoted by $O_i$. An inner representation of an observation is denote by $h_i \in \mathcal{H}$. We call a \emph{hash} representation function $
 f: \mathcal{O} \rightarrow \mathcal{H}
 $. We suppose that the goal agent ``talks'' with the navigation agent via a sequence of messages expressed as points in $\mathcal{H}$.
 
@@ -138,6 +138,13 @@ As shown by \citet{ecoffet_first_2021} the exploration of distant states greatly
 In contrast to \citep{ecoffet_first_2021}, though, by using learnt state representations that abstract away irrelevant information, and by decoupling goal-setting from goal-achieving the scheme proposed in this work may be applied to stochastic and multi-task environments as well.
 % XXX ``virtual environment resets'' are useful for faster training and more diverse
 %  dataset, their crude state discretization ``hack'', however, is not.
+
+
+\subsection{Emergent observation attributes}
+
+The alternative, and possibly more scalable and interpretable approach to PathRL is to mine observation attributes using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game. The set of attributes is learned.
+
+On the first phase a random subset of attributes from a random observation is selected and passed to the worker. The worker goal is to reach any state which have the passed set of attributes. On the second phase the task of goal generator is to produce the subset of attributes that would maximize the reward.
 
 \section{Related work}
 \label{sec:related_work}
