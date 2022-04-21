@@ -125,7 +125,7 @@ The most promising possibility, especially in the context of the desiderata outl
 \subsection{Motivation}
 
 % XXX oof, i will reword this later.
-The proposed scheme should be effective in sparse extrinsic reward settings: the low-level basic interaction in the environment, when trained to solve the environment on its own, would experience the detrimental effects of reward sparsity most acutely. However, if instead we train a low level agent on state-navigation tasks, motivating it for achieving the goals (a sort of synthetic intrinsic reward, but not curiosity-based), and delegate the solution of the environment itself to an abstract planning agent, which collects extrinsic rewards, we could effectively significantly reduce the planer's reward sparsity, since its consecutive states and actions are the milestones it sets for itself.
+The proposed scheme should be effective in sparse extrinsic reward settings: the low-level basic interaction in the environment, when trained to solve the environment on its own, would experience the detrimental effects of reward sparsity most acutely. However, if instead we train a low level agent on state-navigation tasks, motivating it for achieving the goals (a sort of synthetic intrinsic reward, but not curiosity-based), and delegate the solution of the environment itself to an abstract planning agent, which collects extrinsic rewards, we could effectively significantly reduce the planer's reward sparsity. If the high-level agent uses relatively small set of high-level actions (goals) then the number of possible trajectories to explore is drastically reduced: the trajectories of 10 steps of high-level actions will be used instead of trajectories of 100 steps of the low-level actions.
 
 By splitting in two phases we are able to learn efficient reliable navigation skills using synthetic navigation tasks, 
 without any extrinsic reward.
@@ -142,7 +142,7 @@ In contrast to \citep{ecoffet_first_2021}, though, by using learnt state represe
 
 \subsection{Emergent observation attributes}
 
-The alternative, and possibly more scalable and interpretable approach to PathRL is to mine observation attributes using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game. The set of attributes is learned.
+The alternative, and possibly more scaleable and interpretable approach to PathRL is to mine observation attributes using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the set of fact is learned instead. Each fact is defined as a \href{https://en.wikipedia.org/wiki/Semantic_triple}{semantic triple} (subject, predicate and object), where first and third terms are taken form the same fixed-size set of possible tokens A and second term is taken from another fixed-size set of possible tokens B.
 
 On the first phase a random subset of attributes from a random observation is selected and passed to the worker. The worker goal is to reach any state which have the passed set of attributes. On the second phase the task of goal generator is to produce the subset of attributes that would maximize the reward.
 
@@ -390,7 +390,7 @@ The autors propose a version of Go-explore~\citet{ecoffet_first_2021} exploratio
 We provide a list of potentially interesting and challenging environments below:
 
 \begin{itemize}
-  \item \href{https://github.com/facebookresearch/nle}{NLE}, the NetHack roguelike environment~\citep{kuttler_nethack_2020}
+  \item \href{https://github.com/facebookresearch/nle}{NLE}, the NetHack roguelike environment~\citep{kuttler_nethack_2020} and \href{https://github.com/facebookresearch/minihack}{MiniHack} environment
 
   \item MiniGrid~\citep{gym_minigrid} grid-like 2D environments of different complexity
 
@@ -401,16 +401,6 @@ We provide a list of potentially interesting and challenging environments below:
   }, so that it can work with array-structured observations (like in the RandomDiscoMaze with goals).
 
   \item Classic Atari games~\citep{Mnih2013PlayingAW}. They are deterministic, have discrete actions, use images as an input. Some of the environments e. g. Montezuma's revenge, Pitfall have extremely sparse rewards.
-  
-  \item \href{https://github.com/Unity-Technologies/obstacle-tower-env}{Obstacle Tower}~\citep{juliani_obstacle_2019} Lower-level course navigation and higher level goal-based missions
-  
-  \item \href{https://github.com/kindredresearch/SenseAct}{SenseAct} Robot simulation
-  
-  \item \href{https://github.com/dtdannen/dcss-ai-wrapper}{DCSS AI Wrapper}, the Dungeon Crawl Stone Soup roguelike environment
-  
-  \item World of Bits~\citep{Shi2017WorldOB} web UI tasks, paired with text descriptions
-  
-  \item \href{https://askforalfred.com/}{ALFRED}~\citep{ALFRED20}, a set of text instructions to perform specific actions in the 3D environment
 \end{itemize}
 
 % section environments (end)
