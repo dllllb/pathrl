@@ -139,12 +139,18 @@ In contrast to \citep{ecoffet_first_2021}, though, by using learnt state represe
 % XXX ``virtual environment resets'' are useful for faster training and more diverse
 %  dataset, their crude state discretization ``hack'', however, is not.
 
+\subsection{Semantic observation attributes}
 
-\subsection{Emergent observation attributes}
+The alternative, and possibly more scaleable and interpretable approach to PathRL is to use the set of facts about the observation instead of its representation. Each fact is defined as a \href{https://en.wikipedia.org/wiki/Semantic_triple}{semantic triple} (subject, predicate and object), where first and third terms are taken form the same fixed-size set of possible tokens A and second term is taken from another fixed-size set of possible tokens B.
 
-The alternative, and possibly more scaleable and interpretable approach to PathRL is to mine observation attributes using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the set of fact is learned instead. Each fact is defined as a \href{https://en.wikipedia.org/wiki/Semantic_triple}{semantic triple} (subject, predicate and object), where first and third terms are taken form the same fixed-size set of possible tokens A and second term is taken from another fixed-size set of possible tokens B.
+On the first phase the attribute \textit{difference} between the current observation some random observation is calculated. A random subset of attributes from that difference is selected and passed to the worker. The worker goal is to reach any state which have the passed set of attributes. On the second phase the task of goal generator is to produce the subset of attributes that would maximize the reward.
 
-On the first phase a random subset of attributes from a random observation is selected and passed to the worker. The worker goal is to reach any state which have the passed set of attributes. On the second phase the task of goal generator is to produce the subset of attributes that would maximize the reward.
+Semantic observation attributes can be manually engineered, or possibly mined from the observations.
+
+\subsubsection{Image guessing}
+
+Observation attributes can possibly be mined using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the image is transfromed to the set of facts.
+
 
 \section{Related work}
 \label{sec:related_work}
