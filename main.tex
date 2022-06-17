@@ -386,30 +386,15 @@ The authors propose to use set-based representations of the observations instead
 
 \paragraph{RbExplore \citet{Ugadiarov2021LongTermEI}}
 
-The autors propose a version of Go-explore~\citet{ecoffet_first_2021} exploration algorithm. They propose to use learned state embeddings instead of image upscaling. The state embeddings are learned in unsuprevised manner using the closeness on the trajectory as similarity.
+The authors propose a version of Go-explore~\citet{ecoffet_first_2021} exploration algorithm. They propose to use learned state embeddings instead of image upscaling. The state embeddings are learned in unsupervised manner using the closeness on the trajectory as similarity.
 
-% paragraph rbexplore (end)
+% paragraph consciousness (end)
 
-\section{Environments} % (fold)
-\label{sec:environments}
+\paragraph{GMHRL \citet{chen2019learning}}
 
-We provide a list of potentially interesting and challenging environments below:
+The authors propose a manager-worker framework, similar to PathRL, where the worker is trained on the state achievement task. The master is trained to generate potentially valuable states using the extrinsic reward. The buffer of observed states is used to train worker on the attainable goals. The algorithm is tested in the multi-task MiniGrid environment, where the current task is explicitly passed to the manager network.
 
-\begin{itemize}
-  \item \href{https://github.com/facebookresearch/nle}{NLE}, the NetHack roguelike environment~\citep{kuttler_nethack_2020} and \href{https://github.com/facebookresearch/minihack}{MiniHack} environment
-
-  \item MiniGrid~\citep{gym_minigrid} grid-like 2D environments of different complexity
-
-  \item \href{https://github.com/ivannz/gymDiscoMaze.git@stable}{RandomDiscoMaze} from \citep[sec.~4.1]{badia_never_2020}: has fully and partially observed mazes, and prototype for a fully observed goal-oriented version.
-  Also see patched \href{https://github.com/ivannz/stable-baselines3.git@her-multibinary-patch}{stable-baselines3} for HER%
-  \footnote{
-    is there one for HIM as well? :P
-  }, so that it can work with array-structured observations (like in the RandomDiscoMaze with goals).
-
-  \item Classic Atari games~\citep{Mnih2013PlayingAW}. They are deterministic, have discrete actions, use images as an input. Some of the environments e. g. Montezuma's revenge, Pitfall have extremely sparse rewards.
-\end{itemize}
-
-% section environments (end)
+% paragraph gmhrl (end)
 
 \medskip
 
