@@ -110,7 +110,7 @@ This goal-setter receives only the current state and produces the set of predica
 
 \subsubsection{Reward scheme}
 
-The goal-setter $G$ is trained with two rewards: the extrinsic reward, i.e. true reward of the environment, and the intrinsic curiosity reward\textbf{} for active exploration.
+The goal-setter $G$ is trained with two rewards: the extrinsic reward, i.e. true reward of the environment, and the intrinsic curiosity reward for active exploration.
 
 In this scheme $G$ is encouraged to propose queries for states of two kinds: \emph{explotable} states with high extrinsic reward, and \emph{explorable}, unknown ``terrritory'' states high curiosity potential.
 %
@@ -138,6 +138,10 @@ As shown by \citet{ecoffet_first_2021} the exploration of distant states greatly
 In contrast to \citep{ecoffet_first_2021}, though, by using learnt state representations that abstract away irrelevant information, and by decoupling goal-setting from goal-achieving the scheme proposed in this work may be applied to stochastic and multi-task environments as well.
 % XXX ``virtual environment resets'' are useful for faster training and more diverse
 %  dataset, their crude state discretization ``hack'', however, is not.
+
+\subsection{Interpretable RL}
+
+The proposed PathRL algorithm can be made interpretable by adding state representation decoder, that would transform a goal back to the desired state, associated with that goal. This can be done training state decoder together with state encoder during the first phase of training.
 
 \subsection{Semantic observation attributes}
 
