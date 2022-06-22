@@ -146,6 +146,10 @@ In contrast to \citep{ecoffet_first_2021}, though, by using learnt state represe
 
 The proposed PathRL algorithm can be made interpretable by adding state representation decoder, that would transform a goal back to the desired state, associated with that goal. This can be done training state decoder together with state encoder during the first phase of training.
 
+\subsubsection{Discriminator loss for goal-setter}
+
+To force goal-setter to generate goals, that are state representations, additional discriminator loss can be used. Separate discriminator net can be trained to distinguish between the generated goals and state representations and its accuracy can be used as loss to goal-setter similarly to the GAN training scheme.
+
 \subsection{Semantic observation attributes}
 
 The alternative, and possibly more scaleable and interpretable approach to PathRL is to use the set of facts about the observation instead of its representation. Each fact is defined as a \href{https://en.wikipedia.org/wiki/Semantic_triple}{semantic triple} (subject, predicate and object), where first and third terms are taken form the same fixed-size set of possible tokens A and second term is taken from another fixed-size set of possible tokens B.
