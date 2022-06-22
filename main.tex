@@ -105,17 +105,19 @@ The second phase of training of this model is the addition of goal-setting agent
 % XXX a fourth agent? Wasn't the encoder agent also the goal-setter in the beginning of this section?
 % We should emphasize that our methodological contrib is the two-phased training (have to verify this)
 %
-This goal-setter receives only the current state and produces the set of predicates $e_g = G(s_t)$ that lead to potentially high rewards, i.e. $G$ learns to generate the set of predicates that describe high-reward states. During this phase actions are produced by pre-trained navigator $a_t = N(s_t, G(s_t))$ with frozen parameters, yet differentiable w.r.t. the goal-state embedding. This forces the goal agent $G$ to reproduce and communicate in the same description ``language'' as the encoder agent.
-
+This goal-setter receives only the current state and produces the set of predicates $e_g = G(s_t)$ that lead to potentially high rewards, i.e. $G$ learns to generate the set of predicates that describe high-reward states. During this phase actions are produced by pre-trained navigator $a_t = N(s_t, G(s_t))$ with frozen parameters, yet differentiable w.r.t. the goal-state embedding. This forces the goal agent $G$ to reproduce and communicate in the same description ``language'' as the encoder agent. This goal-setter is also penalized for the non-reachable goals which worker is failed to achieve.
 
 \subsubsection{Reward scheme}
 
-The goal-setter $G$ is trained with two rewards: the extrinsic reward, i.e. true reward of the environment, and the intrinsic curiosity reward for active exploration.
+The goal-setter $G$ is trained with four rewards: the extrinsic reward, i.e. true reward of the environment; the intrinsic curiosity reward for active exploration; and non-reachable goal penalty, received if the worker is not achieved the generated goal for the desired number of steps; short goals penalty, which discourages the goal-setter for setting too close goals for the worker.
 
 In this scheme $G$ is encouraged to propose queries for states of two kinds: \emph{explotable} states with high extrinsic reward, and \emph{explorable}, unknown ``terrritory'' states high curiosity potential.
 %
 The combination of curiosity reward scheme and navigator agent have some parallels with Go-explore algorithm~\citep{ecoffet_first_2021}, where the navigation is done via virtual environment resets.
 
+\subsubsection{Additional training for the worker}
+
+The worker can be additionally trained during the second phase. During the worker training, the worker weights are unfrozen. The worker is trained on the intrinsic rewards of reaching the generated goals. The goal-setter receives only exploration reward during the worker training.
 
 \subsection{World state representations}
 
