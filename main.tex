@@ -68,7 +68,8 @@ Formally, the encoder $E$ takes is the desired state $s_g$ and produces its desc
 \subsubsection{Collecting the navigation tasks by exploration}
 
 % the dataset resembles the go-explore-like replay buffer
-Training an efficient navigator $N$ requires a diverse dataset of tasks $(s_t, s_g)$, in which a meaningful goal $s_g$ is attainable from an initial state $s_t$. To this end during training \emph{a third agent} randomly traverses the environment using some exploration policy $\mu_e$, thereby generating state-action trajectories that can be mined for feasible training tasks. The policy $\mu_e$ has to meet several requirements: it has to explore the environment reasonably well and the trajectories it produces must be diverse. One of the options is to use curiosity-based exploration \citep{pathak_curiosity-driven_2017,burda_exploration_2019}.
+Training an efficient navigator $N$ requires a diverse dataset of tasks $(s_t, s_g)$, in which a meaningful goal $s_g$ is attainable from the initial state $s_t$. To this end during training \emph{a third agent} randomly traverses the environment using some exploration policy $\mu_e$, thereby generating state-action trajectories that can be mined for feasible training tasks. The policy $\mu_e$ has to meet several requirements: it has to explore the environment reasonably well and the trajectories it produces must be diverse. One of the options is to use curiosity-based exploration \citep{pathak_curiosity-driven_2017,burda_exploration_2019}.
+Note, that any state can be selected as initial state $s_t$, if $s_t$ is not the initial state of the environment $s_0$, then, the recorded sequence of previous actions can be executed to reach $s_t$ from $s_0$.
 
 \subsubsection{Navigation reward}
 \label{ssub:navigation_reward}
