@@ -116,13 +116,15 @@ In this scheme $G$ is encouraged to propose queries for states of two kinds: \em
 %
 The combination of curiosity reward scheme and navigator agent have some parallels with Go-explore algorithm~\citep{ecoffet_first_2021}, where the navigation is done via virtual environment resets.
 
-\subsubsection{Additional training for the worker}
+\subsubsection{Additional training for the navigator}
 
-The worker can be additionally trained during the second phase. During the worker training, the worker weights are unfrozen. The worker is trained on the intrinsic rewards of reaching the generated goals. The goal-setter receives only exploration reward during the worker training.
+The navigator can be additionally trained during the second phase. During the navigator training, the navigator weights are unfrozen. The navigator is trained on the intrinsic rewards of reaching the generated goals. The goal-setter receives only exploration reward during the worker training.
+
+If additional training for the navigator is used, than it can possibly replace the first phase of the algorithm. The fist phase acts as a navigator pre-training step in this setup.
 
 \subsection{World state representations}
 
-The most promising possibility, especially in the context of the desiderata outlined in sec.~\ref{ssub:navigation_reward}, is to use compressed abstracted representations of the environment states in the encoder, the navigator and the goal-setting agents. The state embeddings can be produced by a world model pre-trained by the next state prediction task, \citep{ha_recurrent_2018}, or by an inverse dynamics model, \citep{badia_never_2020}.
+The most promising possibility, especially in the context of the desiderata outlined in sec.~\ref{ssub:navigation_reward}, is to use compressed abstracted representations of the environment states in the encoder, the navigator and the goal-setter agents. The state embeddings can be produced by a world model pre-trained by the next state prediction task, \citep{ha_recurrent_2018}, by an inverse dynamics model, \citep{badia_never_2020}, or by a contrastive model as in \citep{Ugadiarov2021LongTermEI}.
 
 \subsection{Motivation}
 
@@ -151,7 +153,7 @@ To force goal-setter to generate goals, that are state representations, addition
 
 \subsubsection{Why goal-setter goals can provide interpretation}
 
-Ideally trained goal-setter should output goals that are keypoint states. The keypoint state of the pair of states $s_b$ and $s_e$, is the state, that can should be included to any trajectory between $s_b$ and $s_e$. The keypoint state of some environment is the state with high \emph{betweenness}, i. e. the state that should be included in many possible trajectories for this environment.
+Ideally trained goal-setter should output goals that are keypoint states. The keypoint state of the pair of states $s_b$ and $s_e$, is the state, that can should be included to any trajectory between $s_b$ and $s_e$. The keypoint state of some environment is the state with high \emph{betweenness} measure, i. e. the state that should be included in many possible trajectories for this environment.
 
 \subsection{Semantic observation attributes}
 
@@ -232,7 +234,7 @@ The authors propose an intrinsic reward, which encourages an agent to learn valu
 \paragraph{World models by~\citet{ha_recurrent_2018}} % (fold)
 \label{par:world_models}
 
-Two models are used: a world model and a policy model. The world model consists of vision compression model $V$ and a memory RNN $M$. $V$ is a variational autoencoder that learns to produce compressed state of a vision input $Z$, while $M$ learns to predict distribution of possible next state $Z_{t+1}$ given its hidden state $H_t$, the current state $Z_t$ and action $a_t$. The policy model $P$ receives the current observable and hidden states $Z_t$ and $H_t$, respectively, and outputs a distribution of actions $a_t$ in order to maximize the expected extrinsic (?) reward.
+Two models are used: a world model and a policy model. The world model consists of vision compression model $V$ and a memory RNN $M$. $V$ is a variational autoencoder that learns to produce compressed state of a vision input $Z$, while $M$ learns to predict distribution of possible next state $Z_{t+1}$ given its hidden state $H_t$, the current state $Z_t$ and action $a_t$. The policy model $P$ receives the current observable and hidden states $Z_t$ and $H_t$, respectively, and outputs a distribution of actions $a_t$ in order to maximize the expected extrinsic reward.
 
 See also \citep{watter_embed_2015}.
 
@@ -392,19 +394,19 @@ Authors propose to to use manager-worker scheme where manager work in the space 
 
 % paragraph abstract (end)
 
-\paragraph{Consciousness-Inspired Planning Agent \citet{Zhao2021ACP}}
+\paragraph{Consciousness-Inspired Planning Agent by \citet{Zhao2021ACP}}
 
 The authors propose to use set-based representations of the observations instead of vector-based. The approach to produce state-based representations is taken from object detection work by \citet{Carion2020EndtoEndOD}. The authors also propose to limit the objects used by world model by introducing the bottleneck, i. e. only a small subset of observation's objects is passed to the world model and returned by it. The returned subset of objects is integrated back to the observation to produce the predicted observation of the next state. The world model is used in the tree search planning algorithm to select most promising action of the agent.
 
 % paragraph consciousness (end)
 
-\paragraph{RbExplore \citet{Ugadiarov2021LongTermEI}}
+\paragraph{RbExplore by \citet{Ugadiarov2021LongTermEI}}
 
-The authors propose a version of Go-explore~\citet{ecoffet_first_2021} exploration algorithm. They propose to use learned state embeddings instead of image upscaling. The state embeddings are learned in unsupervised manner using the closeness on the trajectory as similarity.
+The authors propose a version of Go-explore~\citep{ecoffet_first_2021} exploration algorithm. They propose to use learned state embeddings instead of image upscaling. The state embeddings are learned in unsupervised manner using the closeness on the trajectory as similarity.
 
 % paragraph consciousness (end)
 
-\paragraph{GMHRL \citet{chen2019learning}}
+\paragraph{GMHRL by \citet{chen2019learning}}
 
 The authors propose a manager-worker framework, similar to PathRL, where the worker is trained on the state achievement task. The master is trained to generate potentially valuable states using the extrinsic reward. The buffer of observed states is used to train worker on the attainable goals. The algorithm is tested in the multi-task MiniGrid environment, where the current task is explicitly passed to the manager network.
 
