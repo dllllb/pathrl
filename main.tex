@@ -149,6 +149,10 @@ The proposed PathRL algorithm can be made interpretable by adding state represen
 
 To force goal-setter to generate goals, that are state representations, additional discriminator loss can be used. Separate discriminator net can be trained to distinguish between the generated goals and state representations and its accuracy can be used as loss to goal-setter similarly to the GAN training scheme.
 
+\subsubsection{Why goal-setter goals can provide interpretation}
+
+Ideally trained goal-setter should output goals that are keypoint states. The keypoint state of the pair of states $s_b$ and $s_e$, is the state, that can should be included to any trajectory between $s_b$ and $s_e$. The keypoint state of some environment is the state with high \emph{betweenness}, i. e. the state that should be included in many possible trajectories for this environment.
+
 \subsection{Semantic observation attributes}
 
 The alternative, and possibly more scaleable and interpretable approach to PathRL is to use the set of facts about the observation instead of its representation. Each fact is defined as a \href{https://en.wikipedia.org/wiki/Semantic_triple}{semantic triple} (subject, predicate and object), where first and third terms are taken form the same fixed-size set of possible tokens A and second term is taken from another fixed-size set of possible tokens B.
