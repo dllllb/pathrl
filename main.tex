@@ -42,15 +42,7 @@ An MDP is a tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$
 f: \mathcal{O} \rightarrow \mathcal{H}
 $. We suppose that the goal agent ``talks'' with the navigation agent via a sequence of messages expressed as points in $\mathcal{H}$.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.9\linewidth]{./assets/diagram.pdf}
-  \caption{PathRL alogorithm}
-  \label{fig:pathrl}
-\end{figure}
-
 \subsection{First phase}
-
 
 % XXX 1st phase: we just train a navigator using go-explore with HER and curiosity-driven third part explorer
 The first phase of training can be described as a two-agent interaction: the encoder agent $E$ learns to produce a description of the task in some restricted inter-agent \emph{language}, and the navigator agent $N$ receives the task description and learns to execute it.
@@ -110,7 +102,7 @@ This goal-setter receives only the current state and produces the set of predica
 
 \subsubsection{Reward scheme}
 
-The goal-setter $G$ is trained with four rewards: the extrinsic reward, i.e. true reward of the environment; the intrinsic curiosity reward for active exploration; and non-reachable goal penalty, received if the worker is not achieved the generated goal for the desired number of steps; short goals penalty, which discourages the goal-setter for setting too close goals for the worker.
+The goal-setter $G$ is trained with four rewards: the extrinsic reward, i.e. true reward of the environment; the intrinsic curiosity reward for active exploration; non-reachable goal penalty, received if the worker is not achieved the generated goal in k steps; and short goals penalty, for goals, achieved in less than c steps.
 
 In this scheme $G$ is encouraged to propose queries for states of two kinds: \emph{explotable} states with high extrinsic reward, and \emph{explorable}, unknown ``terrritory'' states high curiosity potential.
 %
@@ -118,7 +110,7 @@ The combination of curiosity reward scheme and navigator agent have some paralle
 
 \subsubsection{Additional training for the navigator}
 
-The navigator can be additionally trained during the second phase. During the navigator training, the navigator weights are unfrozen. The navigator is trained on the intrinsic rewards of reaching the generated goals. The goal-setter receives only exploration reward during the worker training.
+The navigator can be additionally trained during the second phase. During the navigator training, the navigator weights are unfrozen. The navigator is trained on the intrinsic rewards of reaching the generated goals. The navigator does not receive reward for too complex goals, when goal is not achieved in k steps. The goal-setter receives only exploration reward during the worker training.
 
 If additional training for the navigator is used, than it can possibly replace the first phase of the algorithm. The fist phase acts as a navigator pre-training step in this setup.
 
