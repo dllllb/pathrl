@@ -42,7 +42,7 @@ An MDP is a tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$
 f: \mathcal{O} \rightarrow \mathcal{H}
 $. We suppose that the goal agent ``talks'' with the navigation agent via a sequence of messages expressed as points in $\mathcal{H}$.
 
-\subsection{First phase}
+\subsection{Navigator pre-train}
 
 % XXX 1st phase: we just train a navigator using go-explore with HER and curiosity-driven third part explorer
 The first phase of training can be described as a two-agent interaction: the encoder agent $E$ learns to produce a description of the task in some restricted inter-agent \emph{language}, and the navigator agent $N$ receives the task description and learns to execute it.
@@ -92,7 +92,7 @@ $ is a learnt state embedding that removes features irrelevant to the navigator'
 % XXX transitivity is $a \to b$, $b \to c$ implies $a \to c$.
 % XXX the property above fails for euclidean distance: take an acute isosceles triangle.
 
-\subsection{Second phase}
+\subsection{Main phase}
 
 The second phase of training of this model is the addition of goal-setting agent $G$ which replaces encoder agent $E$ after training.
 % XXX a fourth agent? Wasn't the encoder agent also the goal-setter in the beginning of this section?
@@ -108,11 +108,13 @@ In this scheme $G$ is encouraged to propose queries for states of two kinds: \em
 %
 The combination of curiosity reward scheme and navigator agent have some parallels with Go-explore algorithm~\citep{ecoffet_first_2021}, where the navigation is done via virtual environment resets.
 
-\subsubsection{Additional training for the navigator}
+\subsubsection{Navigator training}
 
-The navigator can be additionally trained during the second phase. During the navigator training, the navigator weights are unfrozen. The navigator is trained on the intrinsic rewards of reaching the generated goals. The navigator does not receive reward for too complex goals, when goal is not achieved in k steps. The goal-setter receives only exploration reward during the worker training.
+The navigator can be pre-trained during preliminary phase, and then, additionally trained during the main phase. The navigator can also be trained from scratch during the main phase, without pre-train during the preliminary phase.
 
-If additional training for the navigator is used, than it can possibly replace the first phase of the algorithm. The fist phase acts as a navigator pre-training step in this setup.
+During the navigator training, the navigator weights are unfrozen. The navigator is trained on the intrinsic rewards of reaching the generated goals. The navigator does not receive reward for too complex goals, when goal is not achieved in k steps. The goal-setter receives only exploration reward during the worker training.
+
+It is also possible to integrate navigator pre-train phase to the main phase. In this setup, the navigator occasionally receives "return to the state" tasks from the state history buffer.
 
 \subsection{World state representations}
 
