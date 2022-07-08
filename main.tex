@@ -102,7 +102,31 @@ This goal-setter receives only the current state and produces the set of predica
 
 \subsubsection{Reward scheme}
 
-The goal-setter $G$ is trained with four rewards: the extrinsic reward, i.e. true reward of the environment; the intrinsic curiosity reward for active exploration; non-reachable goal penalty, received if the worker is not achieved the generated goal in k steps; and short goals penalty, for goals, achieved in less than c steps.
+The goal-setter $G$ is trained with four rewards: the extrinsic reward, i.e. true reward of the environment (\ref{eq-gs-est-reward}); the intrinsic curiosity reward for active exploration (\ref{eq-gs-int-reward}); non-reachable goal penalty, received if the worker is not achieved the generated goal in k steps; and short goals penalty, for goals, achieved in less than c steps (\ref{eq-gs-reward}).
+
+\begin{equation}
+\mathrm{in}(s, g) = \mathrm{sim}(E(s),\, g) \ge \sigma
+\end{equation}
+
+\begin{equation} \label{eq-gs-reward}
+\mathcal{R}_\mathrm{gs}^{(g_i)} = \sum_{t=0..k,\, g=g_i}
+\begin{cases}
+1 & t > c \land \mathrm{in}(s_t, g) \\
+-\epsilon_s & t \le c \land \mathrm{in}(s_t, g) \\
+-1 & t=k \land \mathrm{in}(s_t, g) \\
+0 & \lnot \mathrm{in}(s_t, g)
+\end{cases}
+\end{equation}
+
+\begin{equation} \label{eq-gs-est-reward}
+\mathcal{R}_\mathrm{ext} = 
+\sum_{t \geq 0} \gamma^t r^E_{t+1}
+\end{equation}
+
+\begin{equation} \label{eq-gs-int-reward}
+\mathcal{R}_\mathrm{int} = 
+\sum_{t \ge 0}  \mathrm{surp}(s_{t+1})
+\end{equation}
 
 In this scheme $G$ is encouraged to propose queries for states of two kinds: \emph{explotable} states with high extrinsic reward, and \emph{explorable}, unknown ``terrritory'' states high curiosity potential.
 %
@@ -112,7 +136,15 @@ The combination of curiosity reward scheme and navigator agent have some paralle
 
 The navigator can be pre-trained during preliminary phase, and then, additionally trained during the main phase. The navigator can also be trained from scratch during the main phase, without pre-train during the preliminary phase.
 
-During the navigator training, the navigator weights are unfrozen. The navigator is trained on the intrinsic rewards of reaching the generated goals. The navigator does not receive reward for too complex goals, when goal is not achieved in k steps. The goal-setter receives only exploration reward during the worker training.
+During the navigator training, the navigator weights are unfrozen. The navigator is trained on the intrinsic rewards of reaching the generated goals. The navigator does not receive reward for too complex goals, when goal is not achieved in k steps (\ref{eq-nav-reward}).
+
+\begin{equation} \label{eq-nav-reward}
+\mathcal{R}_\mathrm{nav}^{(g_i)}= \sum_{t=0..k,\ g=g_i}
+\begin{cases}
+1 & \mathrm{in}(s_t, g) \\
+-\epsilon & \lnot \mathrm{in}(s_t, g)
+\end{cases}
+\end{equation}
 
 It is also possible to integrate navigator pre-train phase to the main phase. In this setup, the navigator occasionally receives "return to the state" tasks from the state history buffer.
 
