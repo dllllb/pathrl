@@ -42,56 +42,6 @@ An MDP is a tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$
 f: \mathcal{O} \rightarrow \mathcal{H}
 $. We suppose that the goal agent ``talks'' with the navigation agent via a sequence of messages expressed as points in $\mathcal{H}$.
 
-\subsection{Navigator pre-train}
-
-% XXX 1st phase: we just train a navigator using go-explore with HER and curiosity-driven third part explorer
-The first phase of training can be described as a two-agent interaction: the encoder agent $E$ learns to produce a description of the task in some restricted inter-agent \emph{language}, and the navigator agent $N$ receives the task description and learns to execute it.
-%
-The \emph{language} can be similar to a query language wherein the desired state is described in a declarative form of instructions or predicates. The \emph{task} is a pair of queries which specify the initial states and the goals to be reached.
-% XXX not just the abstract controllable embedding of target state, but its high level description, generated based on it (rich abstract state embedding). Besdies embedding is likely to be a compressed representation, which makes it unlikely to be a one-to-one mapping on $S$.
-%
-Both agents are rewarded if the navigator successfully executes the task, i.e. $N$ reaches the a goal set by $E$.
-% In current work we consider only the singleton sets of states, hence, the task is defined as a pair of states.
-This two-agent game is somewhat similar to the cooperative game proposed by~\citet{Mordatch2018EmergenceOG}.
-
-Formally, the encoder $E$ takes is the desired state $s_g$ and produces its description $E(s_g)$, while the navigator $N$ reacts to this description and the current state $s_t$ by outputting the next action $a_t \sim N(s_t, E(s_g))$. Agent $E$ has no access to the current state $s_t$, which $N$ is in in the environment, and is thus forced to produce some declarative description of the desired state $s_g$, since it cannot communicate the exact sequence of actions $N$ has to perform.
-% XXX maybe the target query and a hint vector? as it seems possible that the worker-agent could stray arbitrarily far away from the destination on the embedded state manifold
-
-\subsubsection{Collecting the navigation tasks by exploration}
-
-% the dataset resembles the go-explore-like replay buffer
-Training an efficient navigator $N$ requires a diverse dataset of tasks $(s_t, s_g)$, in which a meaningful goal $s_g$ is attainable from the initial state $s_t$. To this end during training \emph{a third agent} randomly traverses the environment using some exploration policy $\mu_e$, thereby generating state-action trajectories that can be mined for feasible training tasks. The policy $\mu_e$ has to meet several requirements: it has to explore the environment reasonably well and the trajectories it produces must be diverse. One of the options is to use curiosity-based exploration \citep{pathak_curiosity-driven_2017,burda_exploration_2019}.
-Note, that any state can be selected as initial state $s_t$, if $s_t$ is not the initial state of the environment $s_0$, then, the recorded sequence of previous actions can be executed to reach $s_t$ from $s_0$.
-
-\subsubsection{Navigation reward}
-\label{ssub:navigation_reward}
-
-One possible training scheme is to shape the reward so that it encourages moving closer from the current state $s_t$ to the target state $s_g$. The notion of state \emph{proximity} must take into account the fact that states reside on certain latent manifold, must be consistent with respect to environment's randomness, and at the same time focus on controllable and abstract away uncontrollable or irrelevant features of the states. For example, positively rewarding for diminishing Euclidean distance between $s_g$ and $s_t$ fails all these desirable properties.
-
-Specifically, in Random Disco Maze navigation environment, \citep{badia_never_2020}, the pixel-wise distance would hinder the task completion due to irrelevant random color of the labyrinth's walls. In the same environment the initial and goal states that are separated by an adjacent wall, yet unreachable from one another would be considered close states. Finally, in Pac-Man%
-\footnote{
-    \url{https://en.wikipedia.org/wiki/Pac-Man_(Atari_2600)}
-}
-the position of the player within the maze is a controllable feature, while the positions of patrolling ghosts are not, yet the distance between states would be sizeable, even if the protagonist has arrived exactly at the specified target position.
-%
-Similarly with Freeway%
-\footnote{
-    \url{https://en.wikipedia.org/wiki/Freeway_(video_game)}
-}, the player's car is controllable, while the opponents' cars are not, \citep[fig.~1]{choi_contingency-aware_2019}.
-
-% Another scheme is to reward agent from reaching the state that is similar enough to the target state. In this case, the state similarity function is not required to be transitive.
-
-One possibility is to define a proximity score as $
-    d(s_a, s_b) 
-        := \frac{\phi(s_a)^\top \phi(s_b)}{\|\phi(s_a)\|\|\phi(s_b)\|}
-$ -- the cosine similarity between the latent representations of states. The mapping $
-    \phi \colon \mathcal{S} \to \mathbb{R}^{d_h}
-$ is a learnt state embedding that removes features irrelevant to the navigator's task and effectively flattens the state manifold. The embedding $\phi$, that drops uncontrollable features can be trained in self-supervised manner on the inverse dynamics task. i.e. inferring the action taken between consecutive states, \citep{choi_contingency-aware_2019,badia_never_2020}.
-
-% In this case the function $d(s_a, s_b)$ that estimates the similarity between states is required. The state similarity function should also be transitive i. e. if $d(s_a, s_b) > d(s_a, s_c)$ then $d(s_b, s_c) > d(s_a, s_c)$.
-% XXX transitivity is $a \to b$, $b \to c$ implies $a \to c$.
-% XXX the property above fails for euclidean distance: take an acute isosceles triangle.
-
 \subsection{Main phase}
 
 The second phase of training of this model is the addition of goal-setting agent $G$ which replaces encoder agent $E$ after training.
@@ -193,6 +143,56 @@ Semantic observation attributes can be manually engineered, or possibly mined fr
 
 Observation attributes can possibly be mined using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the image is transfromed to the set of facts.
 
+\subsection{Navigator pre-train}
+
+% XXX 1st phase: we just train a navigator using go-explore with HER and curiosity-driven third part explorer
+The first phase of training can be described as a two-agent interaction: the encoder agent $E$ learns to produce a description of the task in some restricted inter-agent \emph{language}, and the navigator agent $N$ receives the task description and learns to execute it.
+%
+The \emph{language} can be similar to a query language wherein the desired state is described in a declarative form of instructions or predicates. The \emph{task} is a pair of queries which specify the initial states and the goals to be reached.
+% XXX not just the abstract controllable embedding of target state, but its high level description, generated based on it (rich abstract state embedding). Besdies embedding is likely to be a compressed representation, which makes it unlikely to be a one-to-one mapping on $S$.
+%
+Both agents are rewarded if the navigator successfully executes the task, i.e. $N$ reaches the a goal set by $E$.
+% In current work we consider only the singleton sets of states, hence, the task is defined as a pair of states.
+This two-agent game is somewhat similar to the cooperative game proposed by~\citet{Mordatch2018EmergenceOG}.
+
+Formally, the encoder $E$ takes is the desired state $s_g$ and produces its description $E(s_g)$, while the navigator $N$ reacts to this description and the current state $s_t$ by outputting the next action $a_t \sim N(s_t, E(s_g))$. Agent $E$ has no access to the current state $s_t$, which $N$ is in in the environment, and is thus forced to produce some declarative description of the desired state $s_g$, since it cannot communicate the exact sequence of actions $N$ has to perform.
+% XXX maybe the target query and a hint vector? as it seems possible that the worker-agent could stray arbitrarily far away from the destination on the embedded state manifold
+
+\subsubsection{Collecting the navigation tasks by exploration}
+
+% the dataset resembles the go-explore-like replay buffer
+Training an efficient navigator $N$ requires a diverse dataset of tasks $(s_t, s_g)$, in which a meaningful goal $s_g$ is attainable from the initial state $s_t$. To this end during training \emph{a third agent} randomly traverses the environment using some exploration policy $\mu_e$, thereby generating state-action trajectories that can be mined for feasible training tasks. The policy $\mu_e$ has to meet several requirements: it has to explore the environment reasonably well and the trajectories it produces must be diverse. One of the options is to use curiosity-based exploration \citep{pathak_curiosity-driven_2017,burda_exploration_2019}.
+Note, that any state can be selected as initial state $s_t$, if $s_t$ is not the initial state of the environment $s_0$, then, the recorded sequence of previous actions can be executed to reach $s_t$ from $s_0$.
+
+\subsubsection{Navigation reward}
+\label{ssub:navigation_reward}
+
+One possible training scheme is to shape the reward so that it encourages moving closer from the current state $s_t$ to the target state $s_g$. The notion of state \emph{proximity} must take into account the fact that states reside on certain latent manifold, must be consistent with respect to environment's randomness, and at the same time focus on controllable and abstract away uncontrollable or irrelevant features of the states. For example, positively rewarding for diminishing Euclidean distance between $s_g$ and $s_t$ fails all these desirable properties.
+
+Specifically, in Random Disco Maze navigation environment, \citep{badia_never_2020}, the pixel-wise distance would hinder the task completion due to irrelevant random color of the labyrinth's walls. In the same environment the initial and goal states that are separated by an adjacent wall, yet unreachable from one another would be considered close states. Finally, in Pac-Man%
+\footnote{
+    \url{https://en.wikipedia.org/wiki/Pac-Man_(Atari_2600)}
+}
+the position of the player within the maze is a controllable feature, while the positions of patrolling ghosts are not, yet the distance between states would be sizeable, even if the protagonist has arrived exactly at the specified target position.
+%
+Similarly with Freeway%
+\footnote{
+    \url{https://en.wikipedia.org/wiki/Freeway_(video_game)}
+}, the player's car is controllable, while the opponents' cars are not, \citep[fig.~1]{choi_contingency-aware_2019}.
+
+% Another scheme is to reward agent from reaching the state that is similar enough to the target state. In this case, the state similarity function is not required to be transitive.
+
+One possibility is to define a proximity score as $
+    d(s_a, s_b) 
+        := \frac{\phi(s_a)^\top \phi(s_b)}{\|\phi(s_a)\|\|\phi(s_b)\|}
+$ -- the cosine similarity between the latent representations of states. The mapping $
+    \phi \colon \mathcal{S} \to \mathbb{R}^{d_h}
+$ is a learnt state embedding that removes features irrelevant to the navigator's task and effectively flattens the state manifold. The embedding $\phi$, that drops uncontrollable features can be trained in self-supervised manner on the inverse dynamics task. i.e. inferring the action taken between consecutive states, \citep{choi_contingency-aware_2019,badia_never_2020}.
+
+% In this case the function $d(s_a, s_b)$ that estimates the similarity between states is required. The state similarity function should also be transitive i. e. if $d(s_a, s_b) > d(s_a, s_c)$ then $d(s_b, s_c) > d(s_a, s_c)$.
+% XXX transitivity is $a \to b$, $b \to c$ implies $a \to c$.
+% XXX the property above fails for euclidean distance: take an acute isosceles triangle.
+
 
 \section{Related work}
 \label{sec:related_work}
@@ -229,27 +229,6 @@ Ant Gather / Ant Maze / Ant Push / Ant Fall tasks are used. The higher-level pol
 
 % paragraph hiro (end)
 
-\paragraph{Curiosity-driven learning by~\citet{pathak_curiosity-driven_2017}} % (fold)
-\label{par:curiosity_driven_rl}
-
-Intrinsic Curiosity Module (ICM) predict next state $\hat{s}_{t+1}$ from the current state $s_t$ and action $a_t$ povided by policy network. Difference between predicted $\hat{s}_{t+1}$ and true $s_{t+1}$ is the intrinsic reward for the action $a_t$. Sum of reward from ICM and extrinistic reward is used to train policy network. ICM is in fact a world model.
-
-% paragraph curiosity_driven_rl (end)
-
-\paragraph{Random Network Distillation by~\citet{burda_exploration_2019}} % (fold)
-\label{par:random_distillation}
-
-Another approach to the curiosity-driven exploration is proposed by \citep{burda_exploration_2019}. Exploration bonus is based on predicting the output of a fixed and randomly initialized neural network on the next state, given the next state itself. The intuition is that predictive models have low error in states similar to the ones they have been trained on. The method shows better than average human performance on Montezuma’s Revenge.
-
-% paragraph random_distillation (end)
-
-\paragraph{Learning to communicate by~\citet{Mordatch2018EmergenceOG}} % (fold)
-\label{par:learning_tom_communicate}
-
-Multi-agent game: one agent knows the task and should communicate that task to other agents via broadcast messages. An example of task is to move other agent to the the specific location in the 2D world.
-
-% paragraph learning_tom_communicate (end)
-
 \paragraph{DADS by~\citet{Sharma2020DynamicsAwareUD}} % (fold)
 \label{par:dads}
 
@@ -257,46 +236,17 @@ The authors propose an intrinsic reward, which encourages an agent to learn valu
 
 % paragraph dads (end)
 
-\paragraph{World models by~\citet{ha_recurrent_2018}} % (fold)
-\label{par:world_models}
-
-Two models are used: a world model and a policy model. The world model consists of vision compression model $V$ and a memory RNN $M$. $V$ is a variational autoencoder that learns to produce compressed state of a vision input $Z$, while $M$ learns to predict distribution of possible next state $Z_{t+1}$ given its hidden state $H_t$, the current state $Z_t$ and action $a_t$. The policy model $P$ receives the current observable and hidden states $Z_t$ and $H_t$, respectively, and outputs a distribution of actions $a_t$ in order to maximize the expected extrinsic reward.
-
-See also \citep{watter_embed_2015}.
-
-% paragraph world_models (end)
-
-\paragraph{Hierarchical Actor-Critic by~\citet{levy2017learning}} % (fold)
+\paragraph{Hierarchical Actor-Critic by~\citet{levy2018hierarchical}} % (fold)
 \label{par:hierarchical_ac}
 
-First, define Universal MDP. UMDP is just usual MDP with extra set of Goals, denoted as $G$. The transaction probability function doesn't depend on $G$, but agent's policy is. Authors suggest that some goal from $G$ is chosen before game for agent acting in UMPD.
+%First, define Universal MDP. UMDP is just usual MDP with extra set of Goals, denoted as $G$. The transaction probability function doesn't depend on $G$, but agent's policy is. Authors suggest that some goal from $G$ is chosen before game for agent acting in UMPD.
 % XXX think about the multi-criteria optimization method by \citet{dosovitskiy_you_2019}
 
-Next, authors make several such agents and label them from $0$ to $k$. $k$ is hyperparameter of model. Every agent from $1$ to $k$ have a set of actions $A$ equal to $S$ or subset of $S$. The lowest level agent number $0$ have action space equal to MDP from initial task.
+%Next, authors make several such agents and label them from $0$ to $k$. $k$ is hyperparameter of model. Every agent from $1$ to $k$ have a set of actions $A$ equal to $S$ or subset of $S$. The lowest level agent number $0$ have action space equal to MDP from initial task.
+
+The authors propose multi-level hierarchical RL where environment states are used as sub-goals. I. e. all agents except the the lowest level agent have the set of environment states as their action space. The lowest level agent have the action space of the initial task. The lower-level agents are trained on the goal states, selected from the past experience similarly to the HER~\cite{andrychowicz_hindsight_2017} approach.
 
 % paragraph hierarchical_ac (end)
-
-\paragraph{Never-Give-Up intrinsic reward by~\citet{badia_never_2020}} % (fold)
-\label{par:never_give_up}
-
-One of the contributions of most relevant to the current project is the use of a self-supervised inverse dynamics model to produce state embeddings cleansed from uncontrollable or irrelevant information.
-%
-The model is a Siamese net%
-\footnote{
-    a net taking in consecutive states with two identical upstream branches with shared parameters.
-}
-trained to infer the agent action $a_t$ from the pair of consecutive states $s_t$ and $s_{t+1}$. Effectively the model is $
-    a_t \approx g_w(\phi_\theta(s_t), \phi_\theta(s_{t+1}))
-$ where $\phi_\theta$ is the features map part of the Siamese net, and $g_w$ is the action classifier, which operates on state embeddings, Such framing encourages $\phi_\theta$ to compress the state, dropping parts, which do not contribute to the action inference, and hence would seem to be uncontrollable by the agent.
-
-Regarding exploration, the authors propose the intrinsic reward combined from two modules: the episodic novelty module and the life-long novelty module.
-%
-The life-long novelty module based on the Random Network Distillation, \citep{burda_exploration_2019}.
-%
-The episodic novelty module reward is defined as inversely proportional to the visitation frequency of a state $n(s_t)$, devoid of irrelevant information. Thus the frequency is based on the controllable embeddings produced by $\phi_\theta$.
-The counters $n(s_t)$ are approximated by the sum of similarities between the $k$ nearest embeddings among  $(\phi_\theta(s))_{s\in M}$, where $M$ is the replay memory bank, cleared at the start of each episode.
-
-% paragraph never_give_up (end)
 
 \paragraph{Go-explore approach by~\citet{ecoffet_first_2021}} % (fold)
 \label{par:go-explore}
@@ -311,7 +261,7 @@ Learning comprises two phases:
 \begin{enumerate}
     \item Phase~1: Explore until solved
     \begin{enumerate}
-      \item Choose a cell from the archive probabilistically (optionally prefer promising ones, e.g. newer cells)
+      \item Choose a cell from the archive probabilistically (optionally prefer promising ones, e.g. cells with less number of visits)
     By explicitly storing a variety of stepping stones in an archive, Go-Explore remembers and returns to promising areas for exploration
       \item Go back to that cell. In a resettable environment, one can simply reset the environment state to that of the cell. Most virtual environments are resettable (e. g. save/load state in empulator).
       \item Explore from that cell (e.g. randomly for $n$ steps)
@@ -332,21 +282,12 @@ A Multi-task RL agent gets current goal in addition to the observation. The goal
 
 % paragraph hindsight (end)
 
-\paragraph{DreamerV2 by~\citet{Kaiser2020ModelBasedRL}} % (fold)
-\label{par:dreamer_v2}
-
-World model is learned in pixel space. Similarly to SimPLe~\citep{Kaiser2020ModelBasedRL}, the world model is used to train a policy completely in the environment simulated using the world model. The world model uses vectors of discrete variables instead of continuous variables for observation representations. Straight-through gradients is used to back-propagate through observation representations.
-
-% paragraph dreamer_v2 (end)
-
 \paragraph{FuNs by~\citet{Vezhnevets2017FeUdalNF}} % (fold)
 \label{par:funs}
 
 The hierarchy of two agents is used: the master agent produces the goal vector and the worker agent produces actions. Worker agent is trained mostly on the intrinsic reward for moving in the goal direction inside state space.
 
 % paragraph funs (end)
-
-% paragraph dreamer_v2 (end)
 
 \paragraph{GoCu by~\citet{Bougie2019SkillbasedCF}} % (fold)
 \label{par:gocu}
@@ -392,18 +333,6 @@ Finally, the Executor executes p generated by $\pi$ for N steps. If the desired 
 
 % paragraph ectr (end)
 
-\paragraph{BeBold by \citet{Zhang2020BeBoldEB}}
-
-The authors propose to use difference of inverse visit counts between the current state and the previous state as the intrincic reward. The visit counts are accamulated globally i. e. they are preserved between episodes. The episodic restriction is used: the intrincic reward is received only for the first visit of the particular state for a episode.
-
-% paragraph bebold (end)
-
-\paragraph{RIDE by \citet{Raileanu2020RIDERI}}
-
-The authors propose impact-driven intrinsic reward. The impact is measured as difference between embeddings of the current and the previous states. The intrinsic reward is divided by the square root of episodic visit counts of the current state to mitigate "noisy TV" problem. The state embeddings used to calculate intrinsic reward are produced by the encoder, that is trained on both forward dynamics and backward dynamics tasks.
-
-% paragraph ride (end)
-
 \paragraph{RIG by \citet{Nair2018VisualRL}}
 
 Goal-oriented RL scenario is considered. The goal is defined as a state to reach. The authors propose to use VAE to generate the latent representations of the states.
@@ -414,7 +343,7 @@ It is possible to sample new latent states from VAE, and, hence, sample new goal
 
 % paragraph rig (end)
 
-\paragraph{Abstract Models by \citet{liu_learning_2018}}
+\paragraph{Abstract Models by \citet{liu2019learning}}
 
 Authors propose to to use manager-worker scheme where manager work in the space an abstract states which is substantially smaller than the space of actual states. Manager action space is the space of transitions between the abstract states. The new absract state is  added if the discovered state is not assigned to any existing abstract state. The worker is trained to reliably navigate between the pairs of abstract states. The exploration is performed by selecting an abstract state with low number of exploration attempts. The hand crafted-function to capture the grid cell of the agent is used to produce the abstract state.
 
