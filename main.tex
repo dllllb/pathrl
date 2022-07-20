@@ -42,12 +42,8 @@ An MDP is a tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$
 f: \mathcal{O} \rightarrow \mathcal{H}
 $. We suppose that the goal agent ``talks'' with the navigation agent via a sequence of messages expressed as points in $\mathcal{H}$.
 
-\subsection{Main phase}
+\subsection{Training scheme}
 
-The second phase of training of this model is the addition of goal-setting agent $G$ which replaces encoder agent $E$ after training.
-% XXX a fourth agent? Wasn't the encoder agent also the goal-setter in the beginning of this section?
-% We should emphasize that our methodological contrib is the two-phased training (have to verify this)
-%
 This goal-setter receives only the current state and produces the set of predicates $e_g = G(s_t)$ that lead to potentially high rewards, i.e. $G$ learns to generate the set of predicates that describe high-reward states. During this phase actions are produced by pre-trained navigator $a_t = N(s_t, G(s_t))$ with frozen parameters, yet differentiable w.r.t. the goal-state embedding. This forces the goal agent $G$ to reproduce and communicate in the same description ``language'' as the encoder agent. This goal-setter is also penalized for the non-reachable goals which worker is failed to achieve.
 
 \subsubsection{Reward scheme}
@@ -96,9 +92,38 @@ During the navigator training, the navigator weights are unfrozen. The navigator
 \end{cases}
 \end{equation}
 
-It is also possible to integrate navigator pre-train phase to the main phase. In this setup, the navigator occasionally receives "return to the state" tasks from the state history buffer.
+It is also possible to use a form of navigator pre-train similarly to HER~\citep{andrychowicz_hindsight_2017}. In this setup, the navigator occasionally receives "return to the state" tasks from the state history buffer.
 
-\subsection{World state representations}
+\subsubsection{Navigation reward}
+\label{ssub:navigation_reward}
+
+One possible training scheme is to shape the reward so that it encourages moving closer from the current state $s_t$ to the target state $s_g$. The notion of state \emph{proximity} must take into account the fact that states reside on certain latent manifold, must be consistent with respect to environment's randomness, and at the same time focus on controllable and abstract away uncontrollable or irrelevant features of the states. For example, positively rewarding for diminishing Euclidean distance between $s_g$ and $s_t$ fails all these desirable properties.
+
+Specifically, in Random Disco Maze navigation environment, \citep{badia_never_2020}, the pixel-wise distance would hinder the task completion due to irrelevant random color of the labyrinth's walls. In the same environment the initial and goal states that are separated by an adjacent wall, yet unreachable from one another would be considered close states. Finally, in Pac-Man%
+\footnote{
+    \url{https://en.wikipedia.org/wiki/Pac-Man_(Atari_2600)}
+}
+the position of the player within the maze is a controllable feature, while the positions of patrolling ghosts are not, yet the distance between states would be sizeable, even if the protagonist has arrived exactly at the specified target position.
+%
+Similarly with Freeway%
+\footnote{
+    \url{https://en.wikipedia.org/wiki/Freeway_(video_game)}
+}, the player's car is controllable, while the opponents' cars are not, \citep[fig.~1]{choi_contingency-aware_2019}.
+
+% Another scheme is to reward agent from reaching the state that is similar enough to the target state. In this case, the state similarity function is not required to be transitive.
+
+One possibility is to define a proximity score as $
+    d(s_a, s_b) 
+        := \frac{\phi(s_a)^\top \phi(s_b)}{\|\phi(s_a)\|\|\phi(s_b)\|}
+$ -- the cosine similarity between the latent representations of states. The mapping $
+    \phi \colon \mathcal{S} \to \mathbb{R}^{d_h}
+$ is a learnt state embedding that removes features irrelevant to the navigator's task and effectively flattens the state manifold. The embedding $\phi$, that drops uncontrollable features can be trained in self-supervised manner on the inverse dynamics task. i.e. inferring the action taken between consecutive states, \citep{choi_contingency-aware_2019,badia_never_2020}.
+
+% In this case the function $d(s_a, s_b)$ that estimates the similarity between states is required. The state similarity function should also be transitive i. e. if $d(s_a, s_b) > d(s_a, s_c)$ then $d(s_b, s_c) > d(s_a, s_c)$.
+% XXX transitivity is $a \to b$, $b \to c$ implies $a \to c$.
+% XXX the property above fails for euclidean distance: take an acute isosceles triangle.
+
+\subsubsection{World state representations}
 
 The most promising possibility, especially in the context of the desiderata outlined in sec.~\ref{ssub:navigation_reward}, is to use compressed abstracted representations of the environment states in the encoder, the navigator and the goal-setter agents. The state embeddings can be produced by a world model pre-trained by the next state prediction task, \citep{ha_recurrent_2018}, by an inverse dynamics model, \citep{badia_never_2020}, or by a contrastive model as in \citep{Ugadiarov2021LongTermEI}.
 
@@ -107,10 +132,10 @@ The most promising possibility, especially in the context of the desiderata outl
 % XXX oof, i will reword this later.
 The proposed scheme should be effective in sparse extrinsic reward settings: the low-level basic interaction in the environment, when trained to solve the environment on its own, would experience the detrimental effects of reward sparsity most acutely. However, if instead we train a low level agent on state-navigation tasks, motivating it for achieving the goals (a sort of synthetic intrinsic reward, but not curiosity-based), and delegate the solution of the environment itself to an abstract planning agent, which collects extrinsic rewards, we could effectively significantly reduce the planer's reward sparsity. If the high-level agent uses relatively small set of high-level actions (goals) then the number of possible trajectories to explore is drastically reduced: the trajectories of 10 steps of high-level actions will be used instead of trajectories of 100 steps of the low-level actions.
 
-By splitting in two phases we are able to learn efficient reliable navigation skills using synthetic navigation tasks, 
+By using manager-worker scheme we are able to learn efficient reliable navigation skills using synthetic navigation tasks, 
 without any extrinsic reward.
 %
-The proposed two-phase scheme should be effective for the multi-task learning setting in the same environment: a well trained and capable navigator model, even though trained for one specific environment and goal state distribution, can be effectively reused across different tasks.
+The proposed scheme should be effective for the multi-task learning setting in the same environment: a well trained and capable navigator model, even though trained for one specific environment and goal state distribution, can be effectively reused across different tasks.
 
 As shown by \citet{ecoffet_first_2021} the exploration of distant states greatly improves the algorithm effectiveness. The availability of navigator agent enables training a goal agent, which is encouraged to explore remote states.
 %
@@ -142,57 +167,6 @@ Semantic observation attributes can be manually engineered, or possibly mined fr
 \subsubsection{Image guessing}
 
 Observation attributes can possibly be mined using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the image is transfromed to the set of facts.
-
-\subsection{Navigator pre-train}
-
-% XXX 1st phase: we just train a navigator using go-explore with HER and curiosity-driven third part explorer
-The first phase of training can be described as a two-agent interaction: the encoder agent $E$ learns to produce a description of the task in some restricted inter-agent \emph{language}, and the navigator agent $N$ receives the task description and learns to execute it.
-%
-The \emph{language} can be similar to a query language wherein the desired state is described in a declarative form of instructions or predicates. The \emph{task} is a pair of queries which specify the initial states and the goals to be reached.
-% XXX not just the abstract controllable embedding of target state, but its high level description, generated based on it (rich abstract state embedding). Besdies embedding is likely to be a compressed representation, which makes it unlikely to be a one-to-one mapping on $S$.
-%
-Both agents are rewarded if the navigator successfully executes the task, i.e. $N$ reaches the a goal set by $E$.
-% In current work we consider only the singleton sets of states, hence, the task is defined as a pair of states.
-This two-agent game is somewhat similar to the cooperative game proposed by~\citet{Mordatch2018EmergenceOG}.
-
-Formally, the encoder $E$ takes is the desired state $s_g$ and produces its description $E(s_g)$, while the navigator $N$ reacts to this description and the current state $s_t$ by outputting the next action $a_t \sim N(s_t, E(s_g))$. Agent $E$ has no access to the current state $s_t$, which $N$ is in in the environment, and is thus forced to produce some declarative description of the desired state $s_g$, since it cannot communicate the exact sequence of actions $N$ has to perform.
-% XXX maybe the target query and a hint vector? as it seems possible that the worker-agent could stray arbitrarily far away from the destination on the embedded state manifold
-
-\subsubsection{Collecting the navigation tasks by exploration}
-
-% the dataset resembles the go-explore-like replay buffer
-Training an efficient navigator $N$ requires a diverse dataset of tasks $(s_t, s_g)$, in which a meaningful goal $s_g$ is attainable from the initial state $s_t$. To this end during training \emph{a third agent} randomly traverses the environment using some exploration policy $\mu_e$, thereby generating state-action trajectories that can be mined for feasible training tasks. The policy $\mu_e$ has to meet several requirements: it has to explore the environment reasonably well and the trajectories it produces must be diverse. One of the options is to use curiosity-based exploration \citep{pathak_curiosity-driven_2017,burda_exploration_2019}.
-Note, that any state can be selected as initial state $s_t$, if $s_t$ is not the initial state of the environment $s_0$, then, the recorded sequence of previous actions can be executed to reach $s_t$ from $s_0$.
-
-\subsubsection{Navigation reward}
-\label{ssub:navigation_reward}
-
-One possible training scheme is to shape the reward so that it encourages moving closer from the current state $s_t$ to the target state $s_g$. The notion of state \emph{proximity} must take into account the fact that states reside on certain latent manifold, must be consistent with respect to environment's randomness, and at the same time focus on controllable and abstract away uncontrollable or irrelevant features of the states. For example, positively rewarding for diminishing Euclidean distance between $s_g$ and $s_t$ fails all these desirable properties.
-
-Specifically, in Random Disco Maze navigation environment, \citep{badia_never_2020}, the pixel-wise distance would hinder the task completion due to irrelevant random color of the labyrinth's walls. In the same environment the initial and goal states that are separated by an adjacent wall, yet unreachable from one another would be considered close states. Finally, in Pac-Man%
-\footnote{
-    \url{https://en.wikipedia.org/wiki/Pac-Man_(Atari_2600)}
-}
-the position of the player within the maze is a controllable feature, while the positions of patrolling ghosts are not, yet the distance between states would be sizeable, even if the protagonist has arrived exactly at the specified target position.
-%
-Similarly with Freeway%
-\footnote{
-    \url{https://en.wikipedia.org/wiki/Freeway_(video_game)}
-}, the player's car is controllable, while the opponents' cars are not, \citep[fig.~1]{choi_contingency-aware_2019}.
-
-% Another scheme is to reward agent from reaching the state that is similar enough to the target state. In this case, the state similarity function is not required to be transitive.
-
-One possibility is to define a proximity score as $
-    d(s_a, s_b) 
-        := \frac{\phi(s_a)^\top \phi(s_b)}{\|\phi(s_a)\|\|\phi(s_b)\|}
-$ -- the cosine similarity between the latent representations of states. The mapping $
-    \phi \colon \mathcal{S} \to \mathbb{R}^{d_h}
-$ is a learnt state embedding that removes features irrelevant to the navigator's task and effectively flattens the state manifold. The embedding $\phi$, that drops uncontrollable features can be trained in self-supervised manner on the inverse dynamics task. i.e. inferring the action taken between consecutive states, \citep{choi_contingency-aware_2019,badia_never_2020}.
-
-% In this case the function $d(s_a, s_b)$ that estimates the similarity between states is required. The state similarity function should also be transitive i. e. if $d(s_a, s_b) > d(s_a, s_c)$ then $d(s_b, s_c) > d(s_a, s_c)$.
-% XXX transitivity is $a \to b$, $b \to c$ implies $a \to c$.
-% XXX the property above fails for euclidean distance: take an acute isosceles triangle.
-
 
 \section{Related work}
 \label{sec:related_work}
