@@ -349,7 +349,7 @@ Two-level hierarchy with manager and worker agents is used. Environment states a
 
 \paragraph{Deep Hierarchical Planning by \citet{https://doi.org/10.48550/arxiv.2206.04114}}
 
-The authors propose manager-worker agent scheme, which is similar to PathRL. Instead of raw states all components of the system operate on the latent state representations, produced by the word model. The goal autoencoder is used to compresses state vectors into vectors of discrete codes. Manager selects a discrete code, that is then passed to the decoder, which restores it to the goal vector.
+The authors propose manager-worker agent scheme, which is similar to PathRL. Instead of raw states all components of the system operate on the latent state representations, produced by the PlaNet word model. The goal VQ-VAE is used to compresses state vectors into vectors of discrete codes. Manager selects a discrete code, that is then passed to the decoder, which restores it to the goal vector.
 
 The goal vectors are restored to images by the additional decoder, trained along with the world model.
 
