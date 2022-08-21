@@ -36,12 +36,6 @@
 
 \section{PathRL algorithm}
 
-\subsection{Definitions}
-
-An MDP is a tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$. An observation lies in space $\mathcal{O}$ and is denoted by $O_i$. An inner representation of an observation is denote by $h_i \in \mathcal{H}$. We call a \emph{hash} representation function $
-f: \mathcal{O} \rightarrow \mathcal{H}
-$. We suppose that the goal agent ``talks'' with the navigation agent via a sequence of messages expressed as points in $\mathcal{H}$.
-
 \subsection{Training scheme}
 
 This goal-setter receives only the current state and produces the set of predicates $e_g = G(s_t)$ that lead to potentially high rewards, i.e. $G$ learns to generate the set of predicates that describe high-reward states. During this phase actions are produced by pre-trained navigator $a_t = N(s_t, G(s_t))$ with frozen parameters, yet differentiable w.r.t. the goal-state embedding. This forces the goal agent $G$ to reproduce and communicate in the same description ``language'' as the encoder agent. This goal-setter is also penalized for the non-reachable goals which worker is failed to achieve.
