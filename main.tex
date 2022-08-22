@@ -144,7 +144,11 @@ The proposed PathRL algorithm can be made interpretable by adding state represen
 
 \subsubsection{Discriminator loss for goal-setter}
 
-To force goal-setter to generate goals, that are state representations, additional discriminator loss can be used. Separate discriminator net can be trained to distinguish between the generated goals and state representations and its accuracy can be used as loss to goal-setter similarly to the GAN training scheme.
+To force goal-setter to generate goals, that are state representations, additional discriminator loss can be used. Separate discriminator net can be trained to distinguish between the generated goals and state representations and its accuracy can be used as loss to goal-setter similarly to the GAN training scheme (\ref{eq-disc-loss}).
+
+\begin{equation} \label{eq-disc-loss}
+min_{\Theta_M} max_{\Theta_D} L(\Theta_M, \Theta_D) = E_{s \in P_s} \log D_{\Theta_D}(E(s)) + E_g \log(1 - D_{\Theta_D}(M_{\Theta_M}(s)))
+\end{equation}
 
 \subsubsection{Why goal-setter goals can provide interpretation}
 
