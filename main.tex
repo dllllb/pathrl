@@ -88,7 +88,7 @@ During the navigator training, the navigator weights are unfrozen. The navigator
 
 It is also possible to use a form of navigator pre-train similarly to HER~\citep{andrychowicz_hindsight_2017}. In this setup, the navigator occasionally receives "return to the state" tasks from the state history buffer.
 
-\subsubsection{Navigation reward}
+\subsection{Navigation reward}
 \label{ssub:navigation_reward}
 
 One possible training scheme is to shape the reward so that it encourages moving closer from the current state $s_t$ to the target state $s_g$. The notion of state \emph{proximity} must take into account the fact that states reside on certain latent manifold, must be consistent with respect to environment's randomness, and at the same time focus on controllable and abstract away uncontrollable or irrelevant features of the states. For example, positively rewarding for diminishing Euclidean distance between $s_g$ and $s_t$ fails all these desirable properties.
@@ -117,7 +117,7 @@ $ is a learnt state embedding that removes features irrelevant to the navigator'
 % XXX transitivity is $a \to b$, $b \to c$ implies $a \to c$.
 % XXX the property above fails for euclidean distance: take an acute isosceles triangle.
 
-\subsubsection{World state representations}
+\subsection{World state representations}
 
 The most promising possibility, especially in the context of the desiderata outlined in sec.~\ref{ssub:navigation_reward}, is to use compressed abstracted representations of the environment states in the encoder, the navigator and the goal-setter agents. The state embeddings can be produced by a world model pre-trained by the next state prediction task, \citep{ha_recurrent_2018}, by an inverse dynamics model, \citep{badia_never_2020}, or by a contrastive model as in \citep{Ugadiarov2021LongTermEI}.
 
