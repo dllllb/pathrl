@@ -166,6 +166,10 @@ Semantic observation attributes can be manually engineered, or possibly mined fr
 
 Observation attributes can possibly be mined using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the image is transfromed to the set of facts.
 
+\subsubsection{Search in semantic observation space}
+
+The perespective approach is to use neural net guided MCTS to find the valuable combination of semantic attributes, which can be set as the goals. The change in any single observation attribute  can be used as a high-level action, and will form a branch of the semantic observation tree. In this setup, the goal-setter is an AlphaZero-like algorithm, guided by some additional model, that can estimate the extrinsic reward for a set of semantic attributes.
+
 \section{Related work}
 \label{sec:related_work}
 
