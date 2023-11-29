@@ -38,7 +38,7 @@
 
 \subsection{Training scheme}
 
-This goal-setter receives only the current state and produces the set of predicates $e_g = G(s_t)$ that lead to potentially high rewards, i.e. $G$ learns to generate the set of predicates that describe high-reward states. During this phase actions are produced by pre-trained navigator $a_t = N(s_t, G(s_t))$ with frozen parameters, yet differentiable w.r.t. the goal-state embedding. This forces the goal agent $G$ to reproduce and communicate in the same description ``language'' as the encoder agent. This goal-setter is also penalized for the non-reachable goals which worker is failed to achieve.
+This goal-setter receives only the current state and produces the set of predicates $e_g = G(s_t)$ that lead to potentially high rewards, i.e. $G$ learns to generate the set of predicates that describe high-reward states. During this phase actions are produced by pre-trained navigator $a_t = N(s_t, G(s_t))$ with frozen parameters, yet differentiable w.r.t. the goal-state embedding. This forces the goal agent $G$ to reproduce and communicate in the same description ''language'' as the encoder agent. This goal-setter is also penalized for the non-reachable goals which worker is failed to achieve.
 
 \subsubsection{Reward scheme}
 
@@ -168,7 +168,7 @@ Observation attributes can possibly be mined using approach considered in langua
 
 \subsection{Search in semantic observation space}
 
-The perespective approach is to use neural net guided MCTS to find the valuable combination of semantic attributes, which can be set as the goals. The change in any single observation attribute  can be used as a high-level action, and will form a branch of the semantic observation tree. In this setup, the goal-setter is an AlphaZero-like algorithm, guided by two additional models: semantic state value model and step distance model. The semantic state value model estimates the extrinsic value for a set of semantic attributes. The step distance model model estimates the number of steps to reach some semantic state from the similar semantic state, that is different only in one attribute.
+The perespective approach is to use neural net guided MCTS to find the valuable combination of semantic attributes, which can be set as the goals. The change in any single observation attribute  can be used as a high-level action, and will form a branch of the semantic observation tree. In this setup, the goal-setter is an AlphaZero-like algorithm. Two additional models can be used to provide there reward during the MCTS search: semantic state value model and step distance model. The semantic state value model estimates the extrinsic value for a set of semantic attributes. The step distance model model estimates the number of steps to reach some semantic state from the similar semantic state, that is different only in one attribute.
 
 \section{Related work}
 \label{sec:related_work}
