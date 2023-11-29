@@ -154,21 +154,21 @@ min_{\Theta_M} max_{\Theta_D} L(\Theta_M, \Theta_D) = E_{s \in P_s} \log D_{\The
 
 Ideally trained goal-setter should output goals that are keypoint states. The keypoint state of the pair of states $s_b$ and $s_e$, is the state, that can should be included to any trajectory between $s_b$ and $s_e$. The keypoint state of some environment is the state with high \emph{betweenness} measure, i. e. the state that should be included in many possible trajectories for this environment.
 
-\subsection{Semantic observation attributes}
+\section{Semantic observation attributes}
 
 The alternative, and possibly more scaleable and interpretable approach to PathRL is to use the set of facts about the observation instead of its representation. Each fact is defined as a \href{https://en.wikipedia.org/wiki/Semantic_triple}{semantic triple} (subject, predicate and object), where first and third terms are taken form the same fixed-size set of possible tokens A and second term is taken from another fixed-size set of possible tokens B.
 
-On the first phase the attribute \textit{difference} between the current observation some random observation is calculated. A random subset of attributes from that difference is selected and passed to the worker. The worker goal is to reach any state which have the passed set of attributes. On the second phase the task of goal generator is to produce the subset of attributes that would maximize the reward.
+On the first phase the attribute \textit{difference} between the current observation and some random observation is calculated. A random subset of attributes from that difference is selected and passed to the worker. The worker goal is to reach any state which have the passed set of attributes. On the second phase the task of goal generator is to produce the subset of attributes that would maximize the reward.
 
 Semantic observation attributes can be manually engineered, or possibly mined from the observations.
 
-\subsubsection{Image guessing}
+\subsection{Image guessing}
 
 Observation attributes can possibly be mined using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the image is transfromed to the set of facts.
 
-\subsubsection{Search in semantic observation space}
+\subsection{Search in semantic observation space}
 
-The perespective approach is to use neural net guided MCTS to find the valuable combination of semantic attributes, which can be set as the goals. The change in any single observation attribute  can be used as a high-level action, and will form a branch of the semantic observation tree. In this setup, the goal-setter is an AlphaZero-like algorithm, guided by some additional model, that can estimate the extrinsic reward for a set of semantic attributes.
+The perespective approach is to use neural net guided MCTS to find the valuable combination of semantic attributes, which can be set as the goals. The change in any single observation attribute  can be used as a high-level action, and will form a branch of the semantic observation tree. In this setup, the goal-setter is an AlphaZero-like algorithm, guided by two additional models: semantic state value model and step distance model. The semantic state value model estimates the extrinsic value for a set of semantic attributes. The step distance model model estimates the number of steps to reach some semantic state from the similar semantic state, that is different only in one attribute.
 
 \section{Related work}
 \label{sec:related_work}
