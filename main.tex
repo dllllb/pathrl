@@ -164,6 +164,8 @@ On the first phase the attribute \textit{difference} between the current observa
 
 Semantic observation attributes can be manually engineered, or possibly mined from the observations.
 
+If the observations are 2D images, it is reasonable to split them using some grid and define an unidependent set of semantic attributes for each cell of the grid. This would allow to preserve the spatial information from the original observation.
+
 \subsection{Image guessing}
 
 Observation attributes can possibly be mined using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the image is transfromed to the set of facts.
