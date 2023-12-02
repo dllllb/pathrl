@@ -117,7 +117,7 @@ $ is a learnt state embedding that removes features irrelevant to the navigator'
 % XXX transitivity is $a \to b$, $b \to c$ implies $a \to c$.
 % XXX the property above fails for euclidean distance: take an acute isosceles triangle.
 
-Another scheme is to split a target state to the overlapping parts in sliding-window manner. Then, it is possible to reward agent if some part of the current state became same as the corresponding part of the target state and penalizie agent if some part was the same and became different.
+Another scheme is to split a target state to the overlapping parts in sliding-window manner. Then, it is possible to reward agent if some part of the current state became same as the corresponding part of the target state and penalizie agent if some part was the same and became different. The issue of this scheme is the requirement to generate the whole observation as a goal for a goal-setter.
 
 \subsection{World state representations}
 
