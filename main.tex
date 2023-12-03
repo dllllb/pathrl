@@ -172,7 +172,11 @@ Observation attributes can possibly be mined using approach considered in langua
 
 \subsection{Search in semantic observation space}
 
-The perespective approach is to use neural net guided MCTS to find the valuable combination of semantic attributes, which can be set as the goals. The change in any single observation attribute  can be used as a high-level action, and will form a branch of the semantic observation tree. In this setup, the goal-setter is an AlphaZero-like algorithm. Two additional models can be used to provide there reward during the MCTS search: semantic state value model and step distance model. The semantic state value model estimates the extrinsic value for a set of semantic attributes. The step distance model model estimates the number of steps to reach some semantic state from the similar semantic state, that is different only in \textbf{one} attribute.
+The perespective approach is to use neural net guided MCTS to find the valuable combination of semantic attributes, which can be set as the goals. The desired change in any single observation attribute can be used as a high-level action, and will form a branch of the semantic observation tree. In this setup, the goal-setter is an AlphaZero-like algorithm.
+
+The desired change in a single observation attribute may also lead to inevitable changes in other attributes, but for the tree search algorithm it is practical to define an action by the single changed attribute.
+
+Two additional models can be used to provide there reward during the MCTS search: semantic state value model and step distance model. The semantic state value model estimates the extrinsic value for a set of semantic attributes. The step distance model model estimates the number of steps to reach some semantic state from the similar semantic state, that is different only in \textbf{one} attribute.
 
 \section{Related work}
 \label{sec:related_work}
