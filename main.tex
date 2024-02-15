@@ -170,6 +170,10 @@ If the observations are 2D images, it is reasonable to split them using some gri
 
 Observation attributes can possibly be mined using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the image is transfromed to the set of facts.
 
+\subsection{Discrete world model}
+
+Another possible approach to extract state entities is to train the global state encoder to produce a fixed set of the discrete vectors or global vectors. The global vectors will be used for the restoration of the entire sequience of states along some trajectory of the state-action pairs. The global vectors are produced by encoding the initial state of the trajectory. The state restoration model takes the fixed set of vectors from encoder, the \it{tiny} embedding of the current state and the current action as the input. The state difference loss is used to train current state encoder, the global state encoder and the decoder, and the state restoration model. Since, the current state encoder output is tiny, the system is encoraged to store information, that is shared between the trajectory states in the global vectors. The VQ-VAE like approach can be used to make global vectors discrete.
+
 \subsection{Search in semantic observation space}
 
 The perespective approach is to use neural net guided MCTS to find the valuable combination of semantic attributes, which can be set as the goals. The desired change in any single observation attribute can be used as a high-level action, and will form a branch of the semantic observation tree. In this setup, the goal-setter is an AlphaZero-like algorithm.
