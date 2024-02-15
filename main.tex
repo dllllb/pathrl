@@ -172,7 +172,13 @@ Observation attributes can possibly be mined using approach considered in langua
 
 \subsection{Discrete world model}
 
-Another possible approach to extract state entities is to train the global state encoder to produce a fixed set of the discrete vectors or global vectors. The global vectors will be used for the restoration of the entire sequience of states along some trajectory of the state-action pairs. The global vectors are produced by encoding the initial state of the trajectory. The state restoration model takes the fixed set of vectors from encoder, the \it{tiny} embedding of the current state and the current action as the input. The state difference loss is used to train current state encoder, the global state encoder and the decoder, and the state restoration model. Since, the current state encoder output is tiny, the system is encoraged to store information, that is shared between the trajectory states in the global vectors. The VQ-VAE like approach can be used to make global vectors discrete.
+The possible approach to extract state entities is to train the global state encoder to produce a fixed set of the discrete vectors or global vectors. The global vectors will be used for the restoration of the entire sequience of states along some trajectory of the state-action pairs. The global vectors are produced by encoding the initial state of the trajectory. The VQ-VAE like approach can be used to make global vectors discrete.
+
+The state restoration model is the recurrent network, that, on each step, takes the global vectors and the current action and outputs the next state prediction. The initial hidden vector of the RNN is produced from the initial state by the dedicated hidden vector encoder. The state difference loss is used to train the global state encoder, the state restoration RNN, and the initial hidden vector encoder in the end2end manner. The system does not take the environment states as its input, except the initial state.
+
+\subsubsection{Discrete space autoencoder}
+
+Another option is to introduce a sort of a spatial prior and, instead of predicting the next state, predict the current state in the autoencoding manner. In this case, the current state encoder outputs the matrix of the categorical distributions over the global vectors. In this case, each cell of the output contains an attention vector, that will be applied to calculate the weighted sum the global vectors. A form of the dot-product attention can be used: the dot products of the output vector of the current cell and each of the global vectors, normalized via the softmax will be used as the weights of the global vectors. Finally, matrix of the weigthed sums of the global vectors is used to produce the current state prediction. Here, the trajectory is used as a generator of the similar combinations of the same entities, the actions are not used at all.
 
 \subsection{Search in semantic observation space}
 
