@@ -196,9 +196,9 @@ The perespective approach is to use neural net guided MCTS to find the valuable 
 
 The desired change in a single observation attribute may also lead to inevitable changes in other attributes, but for the tree search algorithm it is practical to define an action by the single changed attribute.
 
-As in AlphaZero by~\citet{silver2017mastering} the additional value estimator for the proposed changes in the attributes can be used to guide the search. It takes the updated set of the semantic attributes, associated with the new branch of the semantic tree and returns its accessed value.
+As in AlphaZero~\cite{silver2017mastering} the additional value estimator for the proposed changes in the attributes can be used to guide the search. It takes the updated set of the semantic attributes, associated with the new branch of the semantic tree and returns its accessed value.
 
-The overall algorithm respembles MuZero by~\citet{schrittwieser2020mastering}, but, instead of state space, the search is made in the semantic attributes space, and attribute changes are used instead of basic actions. Also, in the basic version, the algorithm interacts with the actual environment instead of the learned model.
+The overall algorithm respembles MuZero~\cite{schrittwieser2020mastering}, but, instead of state space, the search is made in the semantic attributes space, and attribute changes are used instead of basic actions. Also, in the basic version, the algorithm interacts with the actual environment instead of the learned model.
 
 \section{Related work}
 \label{sec:related_work}
