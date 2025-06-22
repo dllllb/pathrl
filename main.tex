@@ -172,7 +172,7 @@ The alternative, and possibly more scaleable and interpretable approach to PathR
 
 On the first phase the attribute \textit{difference} between the current observation and some random observation is calculated. A random subset of attributes from that difference is selected and passed to the worker. The worker goal is to reach any state which have the passed set of attributes. On the second phase the task of goal generator is to produce the subset of attributes that would maximize the reward.
 
-Semantic observation attributes can be manually engineered, or possibly mined from the observations.
+Semantic observation attributes can be manually engineered, or possibly mined from the observations. Some environments. e. g. UI task environments, like MiniWob++~\cite{liu2018reinforcement} or computer game environments, like NetHack~\cite{kuttler_nethack_2020} already have highly structured states, that can be used as the replacement of the fact sets.
 
 If the observations are 2D images, it is reasonable to split them using some grid and define an unidependent set of semantic attributes for each cell of the grid. This would allow to preserve the spatial information from the original observation.
 
