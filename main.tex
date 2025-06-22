@@ -200,6 +200,8 @@ As in AlphaZero~\cite{silver2017mastering} the additional value estimator for th
 
 The overall algorithm respembles MuZero~\cite{schrittwieser2020mastering}, but, instead of state space, the search is made in the semantic attributes space, and attribute changes are used instead of basic actions. Also, in the basic version, the algorithm interacts with the actual environment instead of the learned model.
 
+The MCTS search can be guided by the following signals: negative penalty if the navigator can not reach the proposed state in k steps, the reward for reaching the desired state, e. g. achieving the assigned task, or winnning the game, the negative reward for reaching the undesired state, e. g. losing the game. In some environments there can be only desired state, on others, only undesired states exist, still, only one kind of the states can be used to guide the search.
+
 \section{Related work}
 \label{sec:related_work}
 
