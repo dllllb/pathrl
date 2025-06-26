@@ -208,7 +208,7 @@ The MCTS search can be guided by the following signals: negative penalty if the 
 \paragraph{Feudal RL by~\citet{Dayan1992FeudalRL}} % (fold)
 \label{par:feudal_rl}
 
-The task is to find a way in the maze. A hierarchy of policies is defined. A policy use blocks of space as atomic movement positions. Each level of hierarchy use exponentially larger blocks comparing to the previous level. A policy selects a desired block to move to as its action and then assigns a task to lower-level policy. Higher-level policy defines reward for the lower-level policy. The reward for lower-level policy is gained if it successfully guides the agent to the block, defined by the higher-level policy.
+The task is to find a way in the maze. A hierarchy of policies is defined. A policy use blocks of space as the atomic movement positions. Each level of hierarchy use exponentially larger blocks comparing to the previous level. A policy selects a desired block to move to as its action and then assigns it as a task to the lower-level policy. The reward for lower-level policy is gained if it successfully guides the agent to the block, defined by the higher-level policy.
 
 % paragraph feudal_rl (end)
 
