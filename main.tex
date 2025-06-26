@@ -233,7 +233,7 @@ The critic and the set of possible goals G are not learned but are considered av
 \paragraph{HIRO by~\citet{Nachum2018DataEfficientHR}} % (fold)
 \label{par:hiro}
 
-Ant Gather / Ant Maze / Ant Push / Ant Fall tasks are used. The higher-level policy instructs the lower-level policy via high-level actions, or goals, which it samples anew every c steps. A higher-level policy takes current state and outputs the goal for lower-level policy. The lower-level policy interacts directly with the environment. The goal simply instructs the lower-level policy to reach the specific state. The reward for lower-level policy is provided if the environment yields an observation close to matching the desired goal.
+Ant Gather / Ant Maze / Ant Push / Ant Fall tasks are used. The higher-level policy instructs the lower-level policy via high-level actions, or goals, which it samples anew every c steps. A higher-level policy takes current state and outputs the goal for lower-level policy. The lower-level policy interacts directly with the environment. The goal simply instructs the lower-level policy to reach the specific position in the 2D maze. The reward for lower-level policy is provided if the environment yields an observation close to matching the desired goal.
 
 % paragraph hiro (end)
 
