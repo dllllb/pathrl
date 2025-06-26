@@ -48,7 +48,11 @@ This paper is a work-in-progress description of the PathRL algorithm, an applica
 
 \subsection{Training scheme}
 
-This goal-setter receives only the current state and produces the set of predicates $e_g = G(s_t)$ that lead to potentially high rewards, i.e. $G$ learns to generate the set of predicates that describe high-reward states. During this phase actions are produced by pre-trained navigator $a_t = N(s_t, G(s_t))$ with frozen parameters, yet differentiable w.r.t. the goal-state embedding. This forces the goal agent $G$ to reproduce and communicate in the same description ''language'' as the encoder agent. This goal-setter is also penalized for the non-reachable goals which worker is failed to achieve.
+\subsubsection{Goal-setter training}
+
+This goal-setter receives only the current state and produces the high-level goals that lead to potentially high rewards. If semantic obsearvation attributes (\ref{sec:semantic-attr}) are available, the subsets of that attributes can be used as the goals. In this case, goals can be described as a set of predicates $e_g = G(s_t)$, i.e. $G$ is trained to generate the set of predicates that describe high-reward states. Another possibility is to directly use world state representations \ref{sec:world-state-repr} as the goals.
+
+During the goal-setter training, actions are produced by pre-trained navigator $a_t = N(s_t, G(s_t))$ with frozen parameters, yet differentiable w.r.t. the goal-state embedding. This forces the goal agent $G$ to reproduce and communicate in the same description "language" as the encoder agent. This goal-setter is also penalized for the non-reachable goals which worker is failed to achieve.
 
 \subsubsection{Reward scheme}
 
@@ -86,7 +90,7 @@ The combination of curiosity reward scheme and navigator agent have some paralle
 
 The navigator can be pre-trained during preliminary phase, and then, additionally trained during the main phase. The navigator can also be trained from scratch during the main phase, without pre-train during the preliminary phase.
 
-During the navigator training, the navigator weights are unfrozen. The navigator is trained on the intrinsic rewards of reaching the generated goals. The navigator does not receive reward for too complex goals, when goal is not achieved in k steps (\ref{eq-nav-reward}).
+During the navigator training, the navigator weights are unfrozen, and the goal-setter weights are frozen. The navigator is trained on the intrinsic rewards of reaching the generated goals. The navigator does not receive reward for too complex goals, when goal is not achieved in k steps (\ref{eq-nav-reward}).
 
 \begin{equation} \label{eq-nav-reward}
 \mathcal{R}_\mathrm{nav}^{(g_i)}= \sum_{t=0..k,\ g=g_i}
@@ -127,9 +131,10 @@ $ is a learnt state embedding that removes features irrelevant to the navigator'
 % XXX transitivity is $a \to b$, $b \to c$ implies $a \to c$.
 % XXX the property above fails for euclidean distance: take an acute isosceles triangle.
 
-Another scheme is to split a target state to the overlapping parts in sliding-window manner. Then, it is possible to reward agent if some part of the current state became same as the corresponding part of the target state and penalizie agent if some part was the same and became different. The advantage of this scheme is that the observation encoder is not needed. The main challenge of this scheme is the requirement to generate the whole observation as a goal for a goal-setter. The possible way to simplify this task is to pre-train goal-setter on the pairs of observation from the same episode. I. e. pre-train it on the task to generate the representation of the step t observation taking the representation of the step t-i observation.
+Another scheme is to split a target state to the overlapping parts in a sliding-window manner. Then, it is possible to reward agent if some part of the current state became same as the corresponding part of the target state and penalizie agent if some part was the same and became different. The advantage of this scheme is that the observation encoder is not needed. The main challenge of this scheme is the requirement to generate the whole observation as a goal for a goal-setter. The possible way to simplify this task is to pre-train the goal-setter on the pairs of observation from the same episode. I. e. pre-train it on the task to generate the representation of the step t observation taking the representation of the step t-i observation.
 
 \subsection{World state representations}
+\label{sec:world-state-repr}
 
 The most promising possibility, especially in the context of the desiderata outlined in sec.~\ref{ssub:navigation_reward}, is to use compressed abstracted representations of the environment states in the encoder, the navigator and the goal-setter agents. The state embeddings can be produced by a world model pre-trained by the next state prediction task, \citep{ha_recurrent_2018}, by an inverse dynamics model, \citep{badia_never_2020}, or by a contrastive model as in \citep{Ugadiarov2021LongTermEI}.
 
@@ -152,11 +157,11 @@ In contrast to \citep{ecoffet_first_2021}, though, by using learnt state represe
 
 \subsection{Interpretable RL}
 
-The proposed PathRL algorithm can be made interpretable by adding state representation decoder, that would transform a goal back to the desired state, associated with that goal. This can be done training state decoder together with state encoder during the first phase of training.
+The proposed PathRL algorithm can be made interpretable by adding state representation decoder, that would transform a goal back to the desired state, associated with that goal. This can be done training state decoder together with state encoder.
 
 \subsubsection{Discriminator loss for goal-setter}
 
-To force goal-setter to generate goals, that are opservation representations, additional losses can be used. One option is to use discriminator loss. Separate discriminator net can be trained to distinguish between the generated goals and state representations and its accuracy can be used as loss to goal-setter similarly to the GAN training scheme (\ref{eq-disc-loss}). Another option is to pre-train goal-setter on the pairs of observation from the same episode. I. e. pre-train it on the task to generate the representation of the step t observation taking the representation of the step t-i observation.
+To force goal-setter to generate goals, that are opservation representations, additional losses can be used. One option is to use discriminator loss. Separate discriminator net can be trained to distinguish between the generated goals and state representations and its accuracy can be used as loss to goal-setter similarly to the GAN training scheme (\ref{eq-disc-loss}). Another option is to pre-train goal-setter on the pairs of observations from the same episode. I. e. pre-train it on the task to generate the representation of the step t observation taking the representation of the step t-i observation.
 
 \begin{equation} \label{eq-disc-loss}
 min_{\Theta_M} max_{\Theta_D} L(\Theta_M, \Theta_D) = E_{s \in P_s} \log D_{\Theta_D}(E(s)) + E_g \log(1 - D_{\Theta_D}(M_{\Theta_M}(s)))
@@ -167,10 +172,11 @@ min_{\Theta_M} max_{\Theta_D} L(\Theta_M, \Theta_D) = E_{s \in P_s} \log D_{\The
 Ideally trained goal-setter should output goals that are keypoint states. The keypoint state of the pair of states $s_b$ and $s_e$, is the state, that can should be included to any trajectory between $s_b$ and $s_e$. The keypoint state of some environment is the state with high \emph{betweenness} measure, i. e. the state that should be included in many possible trajectories for this environment.
 
 \section{Semantic observation attributes}
+\label{sec:semantic-attr}
 
-The alternative, and possibly more scaleable and interpretable approach to PathRL is to use the set of facts about the observation instead of its representation. Each fact is defined as a \href{https://en.wikipedia.org/wiki/Semantic_triple}{semantic triple} (subject, predicate and object), where first and third terms are taken form the same fixed-size set of possible tokens A and second term is taken from another fixed-size set of possible tokens B.
+The alternative, and possibly more scalable and interpretable approach to PathRL is to use the set of facts about the observation instead of its representation. Each fact is defined as a \href{https://en.wikipedia.org/wiki/Semantic_triple}{semantic triple} (subject, predicate and object), where first and third terms are taken form the same fixed-size set of possible tokens A and second term is taken from another fixed-size set of possible tokens B.
 
-On the first phase the attribute \textit{difference} between the current observation and some random observation is calculated. A random subset of attributes from that difference is selected and passed to the worker. The worker goal is to reach any state which have the passed set of attributes. On the second phase the task of goal generator is to produce the subset of attributes that would maximize the reward.
+During the navigator training, the attribute \textit{difference} between the current observation and some random observation is calculated. A random subset of attributes from that difference is selected and passed to the navigator. The navigator goal is to reach any state which have the passed set of attributes. During the goal-setter training, its task is to produce the subset of attributes that would maximize the environment reward.
 
 Semantic observation attributes can be manually engineered, or possibly mined from the observations. Some environments. e. g. UI task environments, like MiniWob++~\cite{liu2018reinforcement} or computer game environments, like NetHack~\cite{kuttler_nethack_2020} already have highly structured states, that can be used as the replacement of the fact sets.
 
@@ -178,17 +184,13 @@ If the observations are 2D images, it is reasonable to split them using some gri
 
 \subsection{Image guessing}
 
-Observation attributes can possibly be mined using approach considered in language emergence papers. In this scenario the image attributes is learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the image is transfromed to the set of facts.
+Observation attributes can possibly be mined using approach considered in the language emergence papers. In this scenario the image attributes are learned in the unsupervised setting of image guessing game similarly to~\citet{Havrylov2017EmergenceOL}. In~\citet{Havrylov2017EmergenceOL} the image is transformed into the sequence of tokens, in PathRL, the image is transfromed to the set of facts.
 
-\subsection{Discrete world model}
+\subsection{Discrete state representations}
 
-The possible approach to extract state entities is to train the global state encoder to produce a fixed set of the discrete vectors or global vectors. The global vectors will be used for the restoration of the entire sequience of states along some trajectory of the state-action pairs. The global vectors are produced by encoding the initial state of the trajectory. The VQ-VAE like approach can be used to make global vectors discrete.
+Either discrete observation autoencoder or a discrete world model can be used to produce observation attributes.
 
-The state restoration model is the recurrent network, that, on each step, takes the global vectors and the current action and outputs the next state prediction. The initial hidden vector of the RNN is produced from the initial state by the dedicated hidden vector encoder. The state difference loss is used to train the global state encoder, the state restoration RNN, and the initial hidden vector encoder in the end2end manner. The system does not take the environment states as its input, except the initial state.
-
-\subsubsection{Discrete space autoencoder}
-
-Another option is to introduce a sort of a spatial prior and, instead of predicting the next state, predict the current state in the autoencoding manner. In this case, the current state encoder outputs the matrix of the categorical distributions over the global vectors. In this case, each cell of the output contains an attention vector, that will be applied to calculate the weighted sum the global vectors. A form of the dot-product attention can be used: the dot products of the output vector of the current cell and each of the global vectors, normalized via the softmax will be used as the weights of the global vectors. Finally, matrix of the weigthed sums of the global vectors is used to produce the current state prediction. Here, the trajectory is used as the source of a different combinations of the same entities, the actions are not used at all.
+In the world modelling task~\cite{NEURIPS2018_2de5d166}, the observation embeddings are used to restore the next observations. Possibly, the entire sequience of the observatins along some trajectory of the observation-action pairs can be restored in the autoregressibe manner. The VQ-VAE-like~\cite{van2017neural} approach can be used to make global vectors discrete.
 
 \subsection{Search in semantic observation space}
 
