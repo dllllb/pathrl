@@ -136,7 +136,7 @@ Another scheme is to split a target state to the overlapping parts in a sliding-
 \subsection{World state representations}
 \label{sec:world-state-repr}
 
-The most promising possibility, especially in the context of the desiderata outlined in sec.~\ref{ssub:navigation_reward}, is to use compressed abstracted representations of the environment states in the encoder, the navigator and the goal-setter agents. The state embeddings can be produced by a world model pre-trained by the next state prediction task, \citep{ha_recurrent_2018}, by an inverse dynamics model, \citep{badia_never_2020}, or by a contrastive model as in \citep{Ugadiarov2021LongTermEI}.
+The most promising possibility, especially in the context of the desiderata outlined in sec.~\ref{ssub:navigation_reward}, is to use compressed abstracted representations of the environment states in the encoder, the navigator and the goal-setter agents. The state embeddings can be produced by a world model pre-trained by the next state prediction task~\citep{ha_recurrent_2018}, by an inverse dynamics model~\citep{badia_never_2020}, or by a contrastive model~\citep{Ugadiarov2021LongTermEI}.
 
 \subsection{Motivation}
 
@@ -385,9 +385,7 @@ Two-level hierarchy with manager and worker agents is used. Environment states a
 
 \paragraph{Deep Hierarchical Planning by \citet{https://doi.org/10.48550/arxiv.2206.04114}}
 
-The authors propose manager-worker agent scheme, which is similar to PathRL. Instead of raw states all components of the system operate on the latent state representations, produced by the PlaNet word model. The goal VQ-VAE is used to compresses state vectors into vectors of discrete codes. Manager selects a discrete code, that is then passed to the decoder, which restores it to the goal vector.
-
-The goal vectors are restored to images by the additional decoder, trained along with the world model.
+The authors of the paper propose manager-worker agent scheme. Instead of raw states all components of the system operate on the latent state representations, produced by the PlaNet~\cite{hafner2019learning} world model. The goal VQ-VaE~\cite{van2017neural} is used to compresses state vectors into vectors of discrete codes. Every k observations, a manager receives a current observation and selects a discrete code. The code is then passed to the decoder, which restores it to the goal vector. A worker, takes the goal vector in addition to the current observation and issues an action. The worker reward is proportional to the similarity between the next state and the current goal. The goal vectors can be interpreted as an images which allows to gain insights about the agent decision process.
 
 % paragraph dhp (end)
 
