@@ -157,11 +157,11 @@ In contrast to \citep{ecoffet_first_2021}, though, by using learnt state represe
 
 \subsection{Interpretable RL}
 
-The proposed PathRL algorithm can be made interpretable by adding state representation decoder, that would transform a goal back to the desired state, associated with that goal. This can be done training state decoder together with state encoder.
+The proposed PathRL algorithm can be made interpretable by adding state representation decoder, that would transform a goal back to the desired state, associated with that goal. This can be done training a state decoder together with a state encoder.
 
-\subsubsection{Discriminator loss for goal-setter}
+\subsubsection{Discriminator loss for the goal-setter}
 
-To force goal-setter to generate goals, that are opservation representations, additional losses can be used. One option is to use discriminator loss. Separate discriminator net can be trained to distinguish between the generated goals and state representations and its accuracy can be used as loss to goal-setter similarly to the GAN training scheme (\ref{eq-disc-loss}). Another option is to pre-train goal-setter on the pairs of observations from the same episode. I. e. pre-train it on the task to generate the representation of the step t observation taking the representation of the step t-i observation.
+To force goal-setter to generate goals, that are observation representations, additional losses can be used. One option is to use discriminator loss. Separate discriminator net can be trained to distinguish between the generated goals and state representations and its accuracy can be used as loss to goal-setter similarly to the GAN training scheme (\ref{eq-disc-loss}). Another option is to pre-train goal-setter on the pairs of observations from the same episode. I. e. pre-train it on the task to generate the representation of the step t observation taking the representation of the step t-i observation.
 
 \begin{equation} \label{eq-disc-loss}
 min_{\Theta_M} max_{\Theta_D} L(\Theta_M, \Theta_D) = E_{s \in P_s} \log D_{\Theta_D}(E(s)) + E_g \log(1 - D_{\Theta_D}(M_{\Theta_M}(s)))
